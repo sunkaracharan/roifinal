@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+{% block title %}Contact Us | ROI Calculator{% endblock %}
+{% block content %}
+<!-- Contact Hero Section -->
+<section class="contact-hero py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h1 class="display-4 text-gradient fw-bold mb-3">
+                <i class="fas fa-envelope me-3 icon-glow"></i>Get in Touch
+            </h1>
+            <p class="lead text-muted">
+                Have questions about our ROI calculator? We're here to help you make the best cloud investment decisions.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Content -->
+<section class="contact-content py-5">
+    <div class="container">
+        <div class="row g-5">
+            <!-- Contact Form -->
+            <div class="col-lg-8">
+                <div class="gradient-card p-5">
+                    <h3 class="text-gradient fw-bold mb-4">
+                        <i class="fas fa-paper-plane me-2"></i>Send us a Message
+                    </h3>
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="name" class="form-label">
+                                    <i class="fas fa-user me-2"></i>Full Name
+                                </label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">
+                                    <i class="fas fa-envelope me-2"></i>Email Address
+                                </label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <div class="col-12">
+                                <label for="subject" class="form-label">
+                                    <i class="fas fa-tag me-2"></i>Subject
+                                </label>
+                                <select class="form-control" id="subject" name="subject">
+                                    <option value="">Select a subject</option>
+                                    <option value="general">General Inquiry</option>
+                                    <option value="support">Technical Support</option>
+                                    <option value="feature">Feature Request</option>
+                                    <option value="partnership">Partnership</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label for="message" class="form-label">
+                                    <i class="fas fa-comment me-2"></i>Message
+                                </label>
+                                <textarea class="form-control" id="message" name="message" rows="6" placeholder="Tell us how we can help you..." required></textarea>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-gradient btn-lg">
+                                    <i class="fas fa-paper-plane me-2"></i>Send Message
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Contact Information -->
+            <div class="col-lg-4">
+                <div class="gradient-card p-4 mb-4">
+                    <h4 class="text-gradient fw-bold mb-4">
+                        <i class="fas fa-info-circle me-2"></i>Contact Information
+                    </h4>
+                    <div class="contact-info">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="fas fa-envelope text-primary"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Email</h6>
+                                <p class="text-muted mb-0">BusinessRoiCalci.com</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="fas fa-phone text-success"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Phone</h6>
+                                <p class="text-muted mb-0">+91 9876543210</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="fas fa-clock text-warning"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Business Hours</h6>
+                                <p class="text-muted mb-0">Mon-Fri: 9AM-6PM </p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="fas fa-map-marker-alt text-info"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">Location</h6>
+                                <p class="text-muted mb-0">Hyderabad</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Links -->
+                <div class="gradient-card p-4">
+                    <h4 class="text-gradient fw-bold mb-4">
+                        <i class="fas fa-link me-2"></i>Quick Links
+                    </h4>
+                    <div class="quick-links">
+                        <a href="/register/" class="d-block text-decoration-none mb-3">
+                            <div class="d-flex align-items-center p-3 bg-primary bg-opacity-10 rounded">
+                                <i class="fas fa-user-plus text-primary me-3"></i>
+                                <div>
+                                    <h6 class="mb-1 text-white">Create Account</h6>
+                                    <small class="text-muted">Start calculating ROI today</small>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="/dashboard/" class="d-block text-decoration-none mb-3">
+                            <div class="d-flex align-items-center p-3 bg-success bg-opacity-10 rounded">
+                                <i class="fas fa-chart-line text-success me-3"></i>
+                                <div>
+                                    <h6 class="mb-1 text-white">Dashboard</h6>
+                                    <small class="text-muted">Access your calculations</small>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="/login/" class="d-block text-decoration-none">
+                            <div class="d-flex align-items-center p-3 bg-warning bg-opacity-10 rounded">
+                                <i class="fas fa-sign-in-alt text-warning me-3"></i>
+                                <div>
+                                    <h6 class="mb-1 text-white">Login</h6>
+                                    <small class="text-muted">Access your account</small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq-section py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="text-gradient fw-bold mb-3">Frequently Asked Questions</h2>
+            <p class="lead text-muted">Find answers to common questions about our ROI calculator</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="gradient-card p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-question-circle text-primary me-2"></i>
+                        How accurate are the ROI calculations?
+                    </h5>
+                    <p class="text-muted mb-0">
+                        Our calculations are based on industry-standard models and real-world data. 
+                        We achieve 95% accuracy compared to actual cloud implementations.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="gradient-card p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-question-circle text-success me-2"></i>
+                        Is my data secure?
+                    </h5>
+                    <p class="text-muted mb-0">
+                        Yes, we use enterprise-grade encryption and security measures. 
+                        Your data is never shared with third parties.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="gradient-card p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-question-circle text-warning me-2"></i>
+                        How long does it take to get results?
+                    </h5>
+                    <p class="text-muted mb-0">
+                        Results are instant! Our optimized algorithms provide 
+                        detailed ROI analysis in seconds.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="gradient-card p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-question-circle text-info me-2"></i>
+                        Can I export my calculations?
+                    </h5>
+                    <p class="text-muted mb-0">
+                        Yes, you can export your ROI calculations as PDF reports 
+                        or CSV files for further analysis.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section py-5">
+    <div class="container">
+        <div class="gradient-card p-5 text-center">
+            <h2 class="text-gradient fw-bold mb-4">Ready to Get Started?</h2>
+            <p class="lead mb-4 text-light">
+                Join thousands of businesses making informed cloud investment decisions. 
+                Create your free account and start calculating ROI today.
+            </p>
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <a href="/register/" class="btn btn-gradient btn-lg">
+                    <i class="fas fa-rocket me-2"></i>Create Free Account
+                </a>
+                <a href="/dashboard/" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-chart-line me-2"></i>View Demo
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

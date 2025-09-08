@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard | ROI Calculator{% endblock %}
+{% block content %}
+<!-- Dashboard Header -->
+<section class="dashboard-header py-4">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="text-gradient fw-bold mb-2">
+                    <i class="fas fa-tachometer-alt me-3 icon-glow"></i>Welcome back, {{ user.username }}!
+                </h1>
+                <p class="lead fw-bold text-dark mb-0" style="font-weight: 900 !important; color: #000000 !important;">
+                    Ready to calculate your next ROI? Choose your preferred mode below.
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <div class="d-flex gap-2 justify-content-md-end">
+                    <a href="/dashboard/quick/" class="btn btn-gradient">
+                        <i class="fas fa-rocket me-2"></i>Quick Estimate
+                    </a>
+                    <a href="/dashboard/full/" class="btn btn-outline-light">
+                        <i class="fas fa-calculator me-2"></i>Full Calculator
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Statistics Cards -->
+<section class="stats-section py-4">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="gradient-card p-4 text-center">
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-chart-line fa-lg text-primary"></i>
+                    </div>
+                    <h3 class="fw-bold text-primary mb-1">{{ total_calculations }}</h3>
+                    <p class="text-muted mb-0">Total Calculations</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="gradient-card p-4 text-center">
+                    <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-rocket fa-lg text-success"></i>
+                    </div>
+                    <h3 class="fw-bold text-success mb-1">{{ quick_calculations }}</h3>
+                    <p class="text-muted mb-0">Quick Estimates</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="gradient-card p-4 text-center">
+                    <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-calculator fa-lg text-warning"></i>
+                    </div>
+                    <h3 class="fw-bold text-warning mb-1">{{ full_calculations }}</h3>
+                    <p class="text-muted mb-0">Full Calculations</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="gradient-card p-4 text-center">
+                    <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-trophy fa-lg text-info"></i>
+                    </div>
+                    <h3 class="fw-bold text-info mb-1">
+                        {% if best_roi %}
+                            {{ best_roi.roi_percent|floatformat:0 }}%
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </h3>
+                    <p class="text-muted mb-0">Best ROI</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Actions -->
+<section class="quick-actions py-4">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="gradient-card p-5 h-100">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                            <i class="fas fa-rocket fa-lg text-primary"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-gradient fw-bold mb-1">🚀 Quick Estimate Mode</h3>
+                            <p class="text-muted mb-0">Essential business metrics for rapid ROI assessment</p>
+                        </div>
+                    </div>
+                    <p class="text-muted mb-4">
+                        Get a rapid ROI assessment with essential business metrics. Perfect for initial evaluations and quick insights.
+                    </p>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Essential business inputs</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Quick calculations</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Instant results</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Perfect for initial assessment</li>
+                    </ul>
+                    <a href="/dashboard/quick/" class="btn btn-gradient w-100">
+                        <i class="fas fa-rocket me-2"></i>Start Quick Estimate
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="gradient-card p-5 h-100">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                            <i class="fas fa-calculator fa-lg text-success"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-gradient fw-bold mb-1">📊 Full Calculator Mode</h3>
+                            <p class="text-muted mb-0">Comprehensive analysis with detailed inputs</p>
+                        </div>
+                    </div>
+                    <p class="text-muted mb-4">
+                        Comprehensive analysis with detailed inputs for maximum accuracy. Ideal for thorough ROI planning.
+                    </p>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>All business metrics</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Performance analysis</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Availability calculations</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Detailed breakdown</li>
+                    </ul>
+                    <a href="/dashboard/full/" class="btn btn-gradient w-100">
+                        <i class="fas fa-calculator me-2"></i>Start Full Calculator
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Recent Calculations -->
+{% if recent_results %}
+<section class="recent-calculations py-4">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-gradient fw-bold mb-0">
+                <i class="fas fa-history me-2"></i>Recent Calculations
+            </h2>
+            <a href="/dashboard/results/" class="btn btn-outline-light">
+                <i class="fas fa-eye me-2"></i>View All Results
+            </a>
+        </div>
+        
+        <div class="row g-4">
+            {% for result in recent_results %}
+            <div class="col-md-6 col-lg-4">
+                <div class="gradient-card p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h6 class="fw-bold mb-1">
+                                {% if result.mode == 'quick' %}
+                                    <i class="fas fa-rocket text-primary me-2"></i>Quick Estimate
+                                {% else %}
+                                    <i class="fas fa-calculator text-success me-2"></i>Full Calculator
+                                {% endif %}
+                            </h6>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>{{ result.timestamp|date:"M d, Y H:i" }}
+                            </small>
+                        </div>
+                        <div class="text-end">
+                            <div class="h5 fw-bold text-primary mb-0">${{ result.total_annual_gain|floatformat:1 }}M</div>
+                            <small class="text-muted">Total Gain</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Key Metrics -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <div class="text-center p-2 bg-primary bg-opacity-10 rounded">
+                                <div class="fw-bold text-primary">{{ result.roi_percent|floatformat:0 }}%</div>
+                                <small class="text-muted">ROI</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center p-2 bg-success bg-opacity-10 rounded">
+                                <div class="fw-bold text-success">{{ result.payback_months|floatformat:1 }} mo</div>
+                                <small class="text-muted">Payback</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Breakdown -->
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-cloud text-primary me-2"></i>
+                                <div>
+                                    <div class="fw-bold">${{ result.cloud_savings|floatformat:1 }}M</div>
+                                    <small class="text-muted">Cloud</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-users text-success me-2"></i>
+                                <div>
+                                    <div class="fw-bold">${{ result.productivity_gain|floatformat:1 }}M</div>
+                                    <small class="text-muted">Productivity</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% else %}
+<!-- Empty State -->
+<section class="empty-state py-5">
+    <div class="container">
+        <div class="gradient-card p-5 text-center">
+            <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mx-auto mb-4" style="width: 100px; height: 100px;">
+                <i class="fas fa-chart-line fa-3x text-warning"></i>
+            </div>
+            <h3 class="text-gradient fw-bold mb-3">No Calculations Yet</h3>
+            <p class="text-muted mb-4">
+                You haven't created any ROI calculations yet. Start by choosing your preferred mode below!
+            </p>
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <a href="/dashboard/quick/" class="btn btn-gradient">
+                    <i class="fas fa-rocket me-2"></i>Quick Estimate
+                </a>
+                <a href="/dashboard/full/" class="btn btn-outline-light">
+                    <i class="fas fa-calculator me-2"></i>Full Calculator
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Quick Tips -->
+<section class="quick-tips py-4">
+    <div class="container">
+        <h2 class="text-gradient fw-bold mb-4 text-center">
+            <i class="fas fa-lightbulb me-2"></i>Quick Tips
+        </h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="gradient-card p-4 text-center">
+                    <i class="fas fa-save fa-2x text-primary mb-3"></i>
+                    <h5 class="fw-bold mb-2">Save Your Results</h5>
+                    <p class="text-muted mb-0">All calculations are automatically saved to your account for future reference.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="gradient-card p-4 text-center">
+                    <i class="fas fa-chart-bar fa-2x text-success mb-3"></i>
+                    <h5 class="fw-bold mb-2">Compare Scenarios</h5>
+                    <p class="text-muted mb-0">Run multiple calculations to compare different cloud investment scenarios.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="gradient-card p-4 text-center">
+                    <i class="fas fa-download fa-2x text-warning mb-3"></i>
+                    <h5 class="fw-bold mb-2">Export Results</h5>
+                    <p class="text-muted mb-0">Export your ROI calculations as PDF reports for presentations and analysis.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

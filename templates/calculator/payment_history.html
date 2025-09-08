@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment History - ROI Calculator{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="gradient-card p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1 class="text-gradient mb-0">
+                        <i class="fas fa-history me-2"></i>Payment History
+                    </h1>
+                    <a href="{% url 'dashboard_home' %}" class="btn btn-outline-light">
+                        <i class="fas fa-home me-2"></i>Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Stats -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="metric-card">
+                <div class="metric-value text-primary">{{ payments.count }}</div>
+                <div class="metric-title">Total Payments</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="metric-card">
+                <div class="metric-value text-success">{{ remaining_calculations }}</div>
+                <div class="metric-title">Free Calculations Left</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="metric-card">
+                <div class="metric-value text-warning">{{ user_limit.full_calculations_used }}</div>
+                <div class="metric-title">Calculations Used</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment History Table -->
+    <div class="gradient-card p-4">
+        {% if payments %}
+        <div class="table-responsive">
+            <table class="table table-dark table-hover">
+                <thead>
+                    <tr>
+                        <th>Payment ID</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Method</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr>
+                        <td>
+                            <code class="text-info">{{ payment.payment_id|truncatechars:12 }}</code>
+                        </td>
+                        <td>
+                            <span class="fw-bold text-success">₹{{ payment.amount }}</span>
+                        </td>
+                        <td>
+                            {% if payment.status == 'completed' %}
+                                <span class="badge bg-success">{{ payment.get_status_display }}</span>
+                            {% elif payment.status == 'pending' %}
+                                <span class="badge bg-warning">{{ payment.get_status_display }}</span>
+                            {% elif payment.status == 'failed' %}
+                                <span class="badge bg-danger">{{ payment.get_status_display }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ payment.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="text-white-50">{{ payment.created_at|date:"M d, Y H:i" }}</span>
+                        </td>
+                        <td>
+                            <i class="fas fa-credit-card me-1"></i>
+                            {{ payment.get_payment_method_display }}
+                        </td>
+                        <td>
+                            {% if payment.status == 'completed' %}
+                                <span class="text-success">
+                                    <i class="fas fa-check-circle me-1"></i>Completed
+                                </span>
+                            {% elif payment.status == 'pending' %}
+                                <span class="text-warning">
+                                    <i class="fas fa-clock me-1"></i>Pending
+                                </span>
+                            {% else %}
+                                <span class="text-danger">
+                                    <i class="fas fa-times-circle me-1"></i>Failed
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-receipt fa-3x text-white-50 mb-3"></i>
+            <h3 class="text-white-50">No Payment History</h3>
+            <p class="text-white-50">You haven't made any payments yet.</p>
+            <a href="{% url 'full_calculator' %}" class="btn btn-gradient">
+                <i class="fas fa-calculator me-2"></i>Start Calculating
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="gradient-card p-4">
+                <h3 class="text-gradient mb-3">Quick Actions</h3>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{% url 'full_calculator' %}" class="btn btn-gradient">
+                        <i class="fas fa-calculator me-2"></i>Full Calculator
+                    </a>
+                    <a href="{% url 'quick_estimate' %}" class="btn btn-outline-light">
+                        <i class="fas fa-rocket me-2"></i>Quick Estimate
+                    </a>
+                    <a href="{% url 'results' %}" class="btn btn-outline-light">
+                        <i class="fas fa-chart-line me-2"></i>My Results
+                    </a>
+                    {% if not user.is_staff and not user.is_superuser and remaining_calculations == 0 %}
+                    <a href="{% url 'payment_required' %}" class="btn btn-warning">
+                        <i class="fas fa-credit-card me-2"></i>Make Payment
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

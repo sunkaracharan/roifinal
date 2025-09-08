@@ -1,0 +1,457 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Assistant - ROI Calculator{% endblock %}
+
+{% block extra_head %}
+<style>
+    .chatbot-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 400px;
+        height: 600px;
+        background: var(--card-gradient);
+        border-radius: 20px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(20px);
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+    }
+
+    .chatbot-container.open {
+        transform: translateY(0);
+    }
+
+    .chatbot-header {
+        background: var(--primary-gradient);
+        padding: 20px;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 20px 20px 0 0;
+    }
+
+    .chatbot-title {
+        font-weight: 600;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .chatbot-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 50%;
+        transition: background 0.3s ease;
+    }
+
+    .chatbot-close:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .chatbot-messages {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .message {
+        max-width: 80%;
+        padding: 12px 16px;
+        border-radius: 18px;
+        word-wrap: break-word;
+        animation: fadeInUp 0.3s ease;
+    }
+
+    .message.user {
+        background: var(--primary-gradient);
+        color: white;
+        align-self: flex-end;
+        border-bottom-right-radius: 5px;
+    }
+
+    .message.bot {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        align-self: flex-start;
+        border-bottom-left-radius: 5px;
+        border: 1px solid var(--border-color);
+    }
+
+    .chatbot-input-container {
+        padding: 20px;
+        border-top: 1px solid var(--border-color);
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .chatbot-input-wrapper {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .chatbot-input {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-color);
+        border-radius: 25px;
+        padding: 12px 20px;
+        color: white;
+        font-size: 0.95rem;
+        outline: none;
+        transition: all 0.3s ease;
+    }
+
+    .chatbot-input:focus {
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+    }
+
+    .chatbot-input::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .chatbot-send {
+        background: var(--primary-gradient);
+        border: none;
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .chatbot-send:hover {
+        transform: scale(1.1);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .chatbot-send:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .typing-indicator {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 12px 16px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 18px;
+        border-bottom-left-radius: 5px;
+        max-width: 80px;
+        align-self: flex-start;
+        border: 1px solid var(--border-color);
+    }
+
+    .typing-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--accent-blue);
+        border-radius: 50%;
+        animation: typing 1.4s infinite ease-in-out;
+    }
+
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes typing {
+        0%, 80%, 100% {
+            transform: scale(0.8);
+            opacity: 0.5;
+        }
+        40% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .error-message {
+        background: rgba(255, 99, 99, 0.2);
+        border: 1px solid rgba(255, 99, 99, 0.3);
+        color: #ff6b6b;
+        padding: 12px 16px;
+        border-radius: 18px;
+        border-bottom-left-radius: 5px;
+        max-width: 80%;
+        align-self: flex-start;
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        .chatbot-container {
+            width: calc(100vw - 40px);
+            height: calc(100vh - 100px);
+            bottom: 10px;
+            right: 10px;
+            left: 10px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="gradient-card p-4">
+                <h1 class="text-gradient mb-4">
+                    <i class="fas fa-robot me-2"></i>AI Assistant
+                </h1>
+                <p class="mb-4">
+                    Welcome to your AI assistant! I'm here to help you with ROI calculations, 
+                    cloud computing optimization, and any questions about our calculator.
+                </p>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="badge-custom">
+                            <h6><i class="fas fa-calculator me-2"></i>ROI Calculations</h6>
+                            <small>Get help with return on investment calculations and formulas</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="badge-custom">
+                            <h6><i class="fas fa-cloud me-2"></i>Cloud Optimization</h6>
+                            <small>Learn about cloud computing cost optimization strategies</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="badge-custom">
+                            <h6><i class="fas fa-chart-line me-2"></i>Business Metrics</h6>
+                            <small>Understand KPIs and business performance indicators</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="badge-custom">
+                            <h6><i class="fas fa-tools me-2"></i>Technical Support</h6>
+                            <small>Get assistance with using the calculator features</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <button class="btn-gradient" onclick="openChatbot()">
+                        <i class="fas fa-comments me-2"></i>Start Chat
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chatbot Modal -->
+<div id="chatbotModal" class="chatbot-container">
+    <div class="chatbot-header">
+        <div class="chatbot-title">
+            <i class="fas fa-robot"></i>
+            <span>AI Assistant</span>
+        </div>
+        <button class="chatbot-close" onclick="closeChatbot()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <div class="chatbot-messages" id="chatbotMessages">
+        <div class="message bot">
+            <strong>AI Assistant:</strong> Hello! I'm here to help you with ROI calculations, cloud optimization, and any questions about our calculator. How can I assist you today?
+        </div>
+    </div>
+    
+    <div class="chatbot-input-container">
+        <div class="chatbot-input-wrapper">
+            <input 
+                type="text" 
+                class="chatbot-input" 
+                id="chatbotInput" 
+                placeholder="Type your message here..."
+                onkeypress="handleKeyPress(event)"
+            >
+            <button class="chatbot-send" id="chatbotSend" onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let isChatbotOpen = false;
+let isLoading = false;
+
+function openChatbot() {
+    const modal = document.getElementById('chatbotModal');
+    modal.classList.add('open');
+    isChatbotOpen = true;
+    
+    // Focus on input
+    setTimeout(() => {
+        document.getElementById('chatbotInput').focus();
+    }, 300);
+}
+
+function closeChatbot() {
+    const modal = document.getElementById('chatbotModal');
+    modal.classList.remove('open');
+    isChatbotOpen = false;
+}
+
+function handleKeyPress(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+    }
+}
+
+function addMessage(content, isUser = false, isError = false) {
+    const messagesContainer = document.getElementById('chatbotMessages');
+    const messageDiv = document.createElement('div');
+    
+    if (isError) {
+        messageDiv.className = 'error-message';
+        messageDiv.innerHTML = `<strong>Error:</strong> ${content}`;
+    } else {
+        messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+        if (isUser) {
+            messageDiv.innerHTML = `<strong>You:</strong> ${content}`;
+        } else {
+            messageDiv.innerHTML = `<strong>AI Assistant:</strong> ${content}`;
+        }
+    }
+    
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function showTypingIndicator() {
+    const messagesContainer = document.getElementById('chatbotMessages');
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'typing-indicator';
+    typingDiv.id = 'typingIndicator';
+    typingDiv.innerHTML = `
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+    `;
+    
+    messagesContainer.appendChild(typingDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function hideTypingIndicator() {
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) {
+        typingIndicator.remove();
+    }
+}
+
+async function sendMessage() {
+    if (isLoading) return;
+    
+    const input = document.getElementById('chatbotInput');
+    const sendButton = document.getElementById('chatbotSend');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    // Add user message
+    addMessage(message, true);
+    input.value = '';
+    
+    // Show typing indicator
+    showTypingIndicator();
+    isLoading = true;
+    sendButton.disabled = true;
+    
+    try {
+        const response = await fetch('/dashboard/chatbot/api/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ message: message })
+        });
+        
+        const data = await response.json();
+        
+        hideTypingIndicator();
+        
+        if (data.success) {
+            addMessage(data.response, false);
+        } else {
+            addMessage(data.error || 'An error occurred while processing your request.', false, true);
+        }
+    } catch (error) {
+        hideTypingIndicator();
+        addMessage('Failed to connect to the AI assistant. Please try again.', false, true);
+        console.error('Chatbot error:', error);
+    } finally {
+        isLoading = false;
+        sendButton.disabled = false;
+        input.focus();
+    }
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Close chatbot when clicking outside
+document.addEventListener('click', function(event) {
+    const modal = document.getElementById('chatbotModal');
+    const openButton = event.target.closest('[onclick="openChatbot()"]');
+    
+    if (isChatbotOpen && !modal.contains(event.target) && !openButton) {
+        closeChatbot();
+    }
+});
+
+// Auto-open chatbot if URL contains #chatbot
+if (window.location.hash === '#chatbot') {
+    setTimeout(openChatbot, 500);
+}
+</script>
+{% endblock %}

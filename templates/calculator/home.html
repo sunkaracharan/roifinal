@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Home | ROI Calculator{% endblock %}
+{% block content %}
+<div class="row justify-content-center align-items-center min-vh-100">
+    <div class="col-lg-10">
+        <div class="text-center mb-5">
+            <h1 class="display-3 text-gradient fw-bold mb-4">
+                <i class="fas fa-chart-line me-3"></i>ROI Calculator
+            </h1>
+            <p class="lead text-muted mb-5">
+                Calculate your cloud ROI with precision. Choose your preferred mode below to get started.
+            </p>
+        </div>
+        
+        <div class="row g-4">
+            <!-- Quick Estimate Mode -->
+            <div class="col-md-6">
+                <div class="gradient-card p-5 h-100 text-center">
+                    <div class="mb-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="fas fa-rocket fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-gradient fw-bold mb-3">🚀 Quick Estimate Mode</h3>
+                    <p class="text-muted mb-4">
+                        Get a rapid ROI assessment with essential business metrics. Perfect for initial evaluations and quick insights.
+                    </p>
+                    <ul class="list-unstyled text-start mb-4">
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Essential business inputs</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Quick calculations</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Instant results</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Perfect for initial assessment</li>
+                    </ul>
+                    <a href="/quick/" class="btn btn-gradient btn-lg w-100">
+                        <i class="fas fa-rocket me-2"></i>Start Quick Estimate
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Full Calculator Mode -->
+            <div class="col-md-6">
+                <div class="gradient-card p-5 h-100 text-center">
+                    <div class="mb-4">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="fas fa-calculator fa-2x text-success"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-gradient fw-bold mb-3">📊 Full Calculator Mode</h3>
+                    <p class="text-muted mb-4">
+                        Comprehensive analysis with detailed inputs for maximum accuracy. Ideal for thorough ROI planning.
+                    </p>
+                    <ul class="list-unstyled text-start mb-4">
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>All business metrics</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Performance analysis</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Availability calculations</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Detailed breakdown</li>
+                    </ul>
+                    <a href="/full/" class="btn btn-gradient btn-lg w-100">
+                        <i class="fas fa-calculator me-2"></i>Start Full Calculator
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Features Section -->
+        <div class="row mt-5 g-4">
+            <div class="col-12">
+                <h2 class="text-center text-gradient fw-bold mb-4">Why Choose Our ROI Calculator?</h2>
+            </div>
+            <div class="col-md-4">
+                <div class="gradient-card p-4 text-center">
+                    <i class="fas fa-shield-alt fa-2x text-primary mb-3"></i>
+                    <h5 class="fw-bold mb-2">Secure & Private</h5>
+                    <p class="text-muted mb-0">Your data is protected with industry-standard security measures.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="gradient-card p-4 text-center">
+                    <i class="fas fa-chart-bar fa-2x text-success mb-3"></i>
+                    <h5 class="fw-bold mb-2">Accurate Calculations</h5>
+                    <p class="text-muted mb-0">Based on proven ROI models and industry best practices.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="gradient-card p-4 text-center">
+                    <i class="fas fa-history fa-2x text-warning mb-3"></i>
+                    <h5 class="fw-bold mb-2">Save & Compare</h5>
+                    <p class="text-muted mb-0">Store your results and compare different scenarios over time.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

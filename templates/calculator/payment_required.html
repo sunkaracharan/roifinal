@@ -1,0 +1,453 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment Required - ROI Calculator{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="gradient-card p-5 text-center">
+                <div class="mb-4">
+                    <i class="fas fa-credit-card fa-4x text-gradient mb-3"></i>
+                    <h1 class="text-gradient mb-3">Payment Required</h1>
+                    <p class="lead text-white-50">
+                        You have used all your free calculations. Make a payment to continue using the Full Calculator.
+                    </p>
+                </div>
+
+                <!-- Calculation Status -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="metric-card">
+                            <div class="metric-value text-danger">{{ total_used }}</div>
+                            <div class="metric-title">Calculations Used</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="metric-card">
+                            <div class="metric-value text-warning">{{ remaining_calculations }}</div>
+                            <div class="metric-title">Free Calculations Left</div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if is_admin %}
+                <div class="alert alert-info">
+                    <i class="fas fa-crown me-2"></i>
+                    <strong>Admin Access:</strong> As an administrator, you have unlimited free calculations.
+                </div>
+                {% else %}
+                <!-- Payment Information -->
+                <div class="gradient-card p-4 mb-4">
+                    <h3 class="text-gradient mb-3">Get Unlimited Access</h3>
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="text-start">
+                                <h4 class="text-white mb-2">₹1.00 for unlimited access</h4>
+                                <p class="text-white-50 mb-0">One-time payment for lifetime unlimited calculations</p>
+                                <div class="mt-2">
+                                    <span class="badge bg-success me-2">
+                                        <i class="fas fa-infinity me-1"></i>Unlimited
+                                    </span>
+                                    <span class="badge bg-primary">
+                                        <i class="fas fa-clock me-1"></i>Lifetime
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <button id="payNowBtn" class="btn btn-gradient btn-lg w-100">
+                                <i class="fas fa-infinity me-2"></i>Get Unlimited Access
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Features -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-shield-alt fa-2x text-success mb-2"></i>
+                            <h5 class="text-white">Secure Payment</h5>
+                            <p class="text-white-50 small">Powered by Razorpay</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-bolt fa-2x text-warning mb-2"></i>
+                            <h5 class="text-white">Instant Access</h5>
+                            <p class="text-white-50 small">Immediate calculation access</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-history fa-2x text-info mb-2"></i>
+                            <h5 class="text-white">Payment History</h5>
+                            <p class="text-white-50 small">Track all your payments</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Navigation -->
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{% url 'dashboard_home' %}" class="btn btn-outline-light">
+                        <i class="fas fa-home me-2"></i>Dashboard
+                    </a>
+                    <a href="{% url 'quick_estimate' %}" class="btn btn-outline-light">
+                        <i class="fas fa-rocket me-2"></i>Quick Estimate
+                    </a>
+                    <a href="{% url 'payment_history' %}" class="btn btn-outline-light">
+                        <i class="fas fa-history me-2"></i>Payment History
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content gradient-card border-0">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-gradient">
+                    <i class="fas fa-credit-card me-2"></i>Complete Payment
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="paymentForm">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white">Amount: ₹1.00</h4>
+                        <p class="text-white-50">For <strong>unlimited access</strong> to the Full Calculator</p>
+                        <div class="alert alert-success mt-3">
+                            <i class="fas fa-infinity me-2"></i>
+                            <strong>One-time payment for lifetime unlimited access!</strong>
+                        </div>
+                    </div>
+                    
+                                <div id="razorpayContainer">
+                <!-- Razorpay payment button will be loaded here -->
+                <form id="razorpayForm">
+                    <script src="https://checkout.razorpay.com/v1/payment-button.js" 
+                            data-payment_button_id="pl_RDhRAQjOTNv1Jm" 
+                            async>
+                    </script>
+                </form>
+                
+                <!-- Manual payment verification section -->
+                <div class="mt-4 p-3 bg-light rounded">
+                    <h6 class="text-dark mb-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        After completing payment in Razorpay:
+                    </h6>
+                    <div class="d-grid">
+                        <button id="verifyPaymentBtn" class="btn btn-success" style="display: none;">
+                            <i class="fas fa-check-circle me-2"></i>
+                            I have completed the payment - Verify Now
+                        </button>
+                    </div>
+                    <small class="text-muted mt-2 d-block">
+                        <i class="fas fa-lightbulb me-1"></i>
+                        Click this button after you see "Payment Successful" in Razorpay
+                    </small>
+                </div>
+                
+                <!-- Alternative: Direct payment simulation for testing -->
+                <div class="mt-3 p-3 bg-warning rounded">
+                    <h6 class="text-dark mb-3">
+                        <i class="fas fa-tools me-2"></i>
+                        For Testing (Development Mode):
+                    </h6>
+                    <div class="d-grid">
+                        <button id="simulatePaymentBtn" class="btn btn-warning" style="display: none;">
+                            <i class="fas fa-flask me-2"></i>
+                            Simulate Successful Payment (Test Mode)
+                        </button>
+                    </div>
+                    <small class="text-muted mt-2 d-block">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Use this button to simulate a successful payment for testing purposes
+                    </small>
+                </div>
+            </div>
+                    
+                    <div id="paymentStatus" class="text-center mt-3" style="display: none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Processing...</span>
+                        </div>
+                        <p class="text-white-50 mt-2">Processing payment...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const payNowBtn = document.getElementById('payNowBtn');
+    const paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+    
+    payNowBtn.addEventListener('click', function() {
+        createPayment();
+    });
+    
+    function createPayment() {
+        fetch('/dashboard/payment/create/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                paymentModal.show();
+                // Update payment button with dynamic data
+                updateRazorpayButton(data);
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while creating payment.');
+        });
+    }
+    
+    function updateRazorpayButton(data) {
+        // Update the payment button with dynamic data
+        const razorpayForm = document.getElementById('razorpayForm');
+        if (razorpayForm) {
+            // Clear existing content
+            razorpayForm.innerHTML = '';
+            
+            // Create new script with dynamic payment button
+            const script = document.createElement('script');
+            script.src = 'https://checkout.razorpay.com/v1/payment-button.js';
+            script.setAttribute('data-payment_button_id', data.payment_button_id);
+            script.async = true;
+            
+            // Add custom attributes for user data
+            script.setAttribute('data-name', data.user_name);
+            script.setAttribute('data-email', data.user_email);
+            script.setAttribute('data-amount', data.amount * 100); // Convert to paise
+            script.setAttribute('data-currency', data.currency);
+            script.setAttribute('data-description', 'Full Calculator Access - ROI Calculator');
+            // Add success URL for proper redirect after payment
+            if (data.success_url) {
+                script.setAttribute('data-callback_url', data.success_url);
+            }
+            script.setAttribute('data-prefill.name', data.user_name);
+            script.setAttribute('data-prefill.email', data.user_email);
+            
+            razorpayForm.appendChild(script);
+            
+                            // Listen for payment success from Razorpay
+                window.addEventListener('message', function(event) {
+                    if (event.data && event.data.type === 'razorpay_payment_success') {
+                        handlePaymentSuccess(data.payment_id, event.data);
+                    }
+                });
+                
+                // Add a global function to handle Razorpay payment success
+                window.razorpayPaymentSuccess = function(razorpayData) {
+                    handlePaymentSuccess(data.payment_id, razorpayData);
+                };
+                
+                // Show the manual verification button after payment button is loaded
+                setTimeout(function() {
+                    const verifyBtn = document.getElementById('verifyPaymentBtn');
+                    const simulateBtn = document.getElementById('simulatePaymentBtn');
+                    if (verifyBtn) {
+                        verifyBtn.style.display = 'block';
+                        verifyBtn.setAttribute('data-payment-id', data.payment_id);
+                    }
+                    if (simulateBtn) {
+                        simulateBtn.style.display = 'block';
+                        simulateBtn.setAttribute('data-payment-id', data.payment_id);
+                    }
+                }, 2000);
+                
+                // Also listen for Razorpay checkout events
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Check if Razorpay button was clicked and payment completed
+                    const checkPaymentStatus = setInterval(function() {
+                        // This is a fallback mechanism
+                        // In a real implementation, you'd use Razorpay's webhook or callback
+                    }, 1000);
+                });
+        }
+    }
+    
+    // Move handlePaymentSuccess to global scope so it can be accessed by event listeners
+    window.handlePaymentSuccess = function(paymentId, razorpayData) {
+        // Handle successful payment
+        document.getElementById('paymentStatus').style.display = 'block';
+        
+        // Verify payment with backend
+        verifyPayment(paymentId, razorpayData);
+    };
+    
+    // Move verifyPayment to global scope so it can be accessed by event listeners
+    window.verifyPayment = function(paymentId, razorpayResponse) {
+        document.getElementById('paymentStatus').style.display = 'block';
+        
+        fetch('/dashboard/payment/verify/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({
+                payment_id: paymentId,
+                razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+                razorpay_signature: razorpayResponse.razorpay_signature
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Hide payment modal if it exists
+                const paymentModal = document.getElementById('paymentModal');
+                if (paymentModal) {
+                    const modal = bootstrap.Modal.getInstance(paymentModal);
+                    if (modal) {
+                        modal.hide();
+                    }
+                }
+                
+                // Directly redirect to full calculator after successful payment
+                if (data.unlimited_access) {
+                    // Redirect to full calculator with success message
+                    window.location.href = '/dashboard/full/?payment_success=true&unlimited_access=true';
+                } else {
+                    // Still redirect to full calculator
+                    window.location.href = '/dashboard/full/?payment_success=true';
+                }
+            } else {
+                alert('Payment verification failed: ' + data.error);
+                window.location.href = '/dashboard/payment/failure/';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Payment verification failed.');
+            window.location.href = '/dashboard/payment/failure/';
+        });
+    };
+});
+
+// Manual payment verification button handler
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Setting up payment verification buttons...');
+    
+    // Function to setup button event listeners
+    function setupButtonListeners() {
+        const verifyBtn = document.getElementById('verifyPaymentBtn');
+        const simulateBtn = document.getElementById('simulatePaymentBtn');
+        
+        console.log('Verify button found:', !!verifyBtn);
+        console.log('Simulate button found:', !!simulateBtn);
+        
+        if (verifyBtn) {
+            // Remove any existing event listeners
+            verifyBtn.removeEventListener('click', handleVerifyClick);
+            verifyBtn.addEventListener('click', handleVerifyClick);
+            console.log('Verify button event listener added');
+        }
+        
+        if (simulateBtn) {
+            // Remove any existing event listeners
+            simulateBtn.removeEventListener('click', handleSimulateClick);
+            simulateBtn.addEventListener('click', handleSimulateClick);
+            console.log('Simulate button event listener added');
+        }
+    }
+    
+    // Handle verify button click
+    function handleVerifyClick(event) {
+        console.log('Verify button clicked');
+        event.preventDefault();
+        
+        const paymentId = this.getAttribute('data-payment-id');
+        console.log('Payment ID:', paymentId);
+        
+        if (paymentId) {
+            // Show loading state
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Verifying...';
+            
+            // Simulate successful payment verification
+            const mockRazorpayData = {
+                razorpay_payment_id: 'manual_verification_' + Date.now(),
+                razorpay_signature: 'manual_signature_' + Date.now()
+            };
+            
+            if (window.handlePaymentSuccess) {
+                window.handlePaymentSuccess(paymentId, mockRazorpayData);
+            } else {
+                alert('Payment verification function not available. Please refresh the page.');
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-check-circle me-2"></i>I have completed the payment - Verify Now';
+            }
+        } else {
+            alert('Payment ID not found. Please try again.');
+        }
+    }
+    
+    // Handle simulate button click
+    function handleSimulateClick(event) {
+        console.log('Simulate button clicked');
+        event.preventDefault();
+        
+        const paymentId = this.getAttribute('data-payment-id');
+        console.log('Payment ID:', paymentId);
+        
+        if (paymentId) {
+            // Show loading state
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Simulating...';
+            
+            // Simulate successful payment verification
+            const mockRazorpayData = {
+                razorpay_payment_id: 'simulated_payment_' + Date.now(),
+                razorpay_signature: 'simulated_signature_' + Date.now()
+            };
+            
+            if (window.handlePaymentSuccess) {
+                window.handlePaymentSuccess(paymentId, mockRazorpayData);
+            } else {
+                alert('Payment verification function not available. Please refresh the page.');
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-flask me-2"></i>Simulate Successful Payment (Test Mode)';
+            }
+        } else {
+            alert('Payment ID not found. Please try again.');
+        }
+    }
+    
+    // Setup initial listeners
+    setupButtonListeners();
+    
+    // Also setup listeners when buttons are dynamically added
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList') {
+                setupButtonListeners();
+            }
+        });
+    });
+    
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+});
+</script>
+{% endblock %}

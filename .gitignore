@@ -1,0 +1,6 @@
+# Ignore Python virtual environments
+.venv/
+venv/
+# Ignore config.py containing sensitive keys
+config.py
+/.env

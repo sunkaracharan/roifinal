@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+{% block title %}My Results | ROI Calculator{% endblock %}
+{% block content %}
+{% csrf_token %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex align-items-center mb-4">
+            <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                <i class="fas fa-history fa-lg text-warning"></i>
+            </div>
+            <div class="flex-grow-1">
+                <h2 class="text-gradient fw-bold mb-1">📊 My ROI Results</h2>
+                <p class="text-muted mb-0">View and compare your saved calculations</p>
+            </div>
+            {% if results %}
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-danger" onclick="deleteAllResults()" title="Delete all calculations">
+                    <i class="fas fa-trash me-2"></i>Delete All
+                </button>
+                <a href="{% url 'history_analysis' %}" class="btn btn-info" target="_blank" title="View historical analysis charts">
+                    <i class="fas fa-chart-line me-2"></i>View Analysis
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        
+        {% if results %}
+        <div class="row g-4">
+            {% for result in results %}
+            <div class="col-md-6 col-lg-4">
+                <div class="gradient-card p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 class="fw-bold mb-1">
+                                {% if result.mode == 'quick' %}
+                                    <i class="fas fa-rocket text-primary me-2"></i>Quick Estimate
+                                {% else %}
+                                    <i class="fas fa-calculator text-success me-2"></i>Full Calculator
+                                {% endif %}
+                            </h5>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>{{ result.timestamp|date:"M d, Y H:i" }}
+                            </small>
+                        </div>
+                        <div class="text-end">
+                            <div class="h5 fw-bold text-primary mb-0">${{ result.total_annual_gain|floatformat:1 }}M</div>
+                            <small class="text-muted">Total Gain</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Key Metrics -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <div class="text-center p-2 bg-primary bg-opacity-10 rounded">
+                                <div class="fw-bold text-primary">{{ result.roi_percent|floatformat:0 }}%</div>
+                                <small class="text-muted">ROI</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center p-2 bg-success bg-opacity-10 rounded">
+                                <div class="fw-bold text-success">{{ result.payback_months|floatformat:1 }} mo</div>
+                                <small class="text-muted">Payback</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Breakdown -->
+                    <div class="mb-3">
+                        <h6 class="fw-bold mb-2">Breakdown:</h6>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-cloud text-primary me-2"></i>
+                                    <div>
+                                        <div class="fw-bold">${{ result.cloud_savings|floatformat:1 }}M</div>
+                                        <small class="text-muted">Cloud</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-users text-success me-2"></i>
+                                    <div>
+                                        <div class="fw-bold">${{ result.productivity_gain|floatformat:1 }}M</div>
+                                        <small class="text-muted">Productivity</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-bolt text-warning me-2"></i>
+                                    <div>
+                                        <div class="fw-bold">${{ result.performance_gain|floatformat:1 }}M</div>
+                                        <small class="text-muted">Performance</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-shield-alt text-info me-2"></i>
+                                    <div>
+                                        <div class="fw-bold">${{ result.availability_gain|floatformat:1 }}M</div>
+                                        <small class="text-muted">Availability</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Input Summary -->
+                    <div class="mb-3">
+                        <h6 class="fw-bold mb-2">Key Inputs:</h6>
+                        <div class="row g-2 text-center">
+                            <div class="col-4">
+                                <div class="bg-light bg-opacity-10 rounded p-2">
+                                    <div class="fw-bold">${{ result.annual_revenue|floatformat:0 }}M</div>
+                                    <small class="text-muted">Revenue</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="bg-light bg-opacity-10 rounded p-2">
+                                    <div class="fw-bold">{{ result.num_engineers }}</div>
+                                    <small class="text-muted">Engineers</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="bg-light bg-opacity-10 rounded p-2">
+                                    <div class="fw-bold">${{ result.annual_cloud_spend|floatformat:0 }}M</div>
+                                    <small class="text-muted">Cloud Spend</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary btn-sm flex-fill" onclick="exportResult({{ result.id }})">
+                            <i class="fas fa-download me-1"></i>Export PDF
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm" onclick="deleteResult({{ result.id }}, '{{ result.mode|title }}')" title="Delete this calculation">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Summary Stats -->
+        <div class="row mt-5 g-4">
+            <div class="col-12">
+                <h3 class="text-gradient fw-bold mb-4">Summary Statistics</h3>
+            </div>
+            <div class="col-md-3">
+                <div class="gradient-card p-4 text-center">
+                    <div class="h3 fw-bold text-primary mb-2">{{ results|length }}</div>
+                    <div class="text-muted">Total Calculations</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="gradient-card p-4 text-center">
+                    <div class="h3 fw-bold text-success mb-2">
+                        ${{ results|length|add:"0"|floatformat:1 }}M
+                    </div>
+                    <div class="text-muted">Average Gain</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="gradient-card p-4 text-center">
+                    <div class="h3 fw-bold text-warning mb-2">
+                        {% if results %}
+                            {{ results.0.roi_percent|floatformat:0 }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </div>
+                    <div class="text-muted">Best ROI</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="gradient-card p-4 text-center">
+                    <div class="h3 fw-bold text-info mb-2">
+                        {% if results %}
+                            {{ results.0.timestamp|date:"M d" }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </div>
+                    <div class="text-muted">Latest Calculation</div>
+                </div>
+            </div>
+        </div>
+        
+        {% else %}
+        <div class="gradient-card p-5 text-center">
+            <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mx-auto mb-4" style="width: 100px; height: 100px;">
+                <i class="fas fa-chart-line fa-3x text-warning"></i>
+            </div>
+            <h3 class="text-gradient fw-bold mb-3">No Results Yet</h3>
+            <p class="text-muted mb-4">
+                You haven't saved any ROI calculations yet. Start by creating your first calculation!
+            </p>
+            <div class="d-flex gap-3 justify-content-center">
+                <a href="/quick/" class="btn btn-gradient">
+                    <i class="fas fa-rocket me-2"></i>Quick Estimate
+                </a>
+                <a href="/full/" class="btn btn-outline-light">
+                    <i class="fas fa-calculator me-2"></i>Full Calculator
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function exportResult(resultId) {
+    // Create a form to submit the export request
+    const form = document.createElement('form');
+    form.method = 'GET';
+    form.action = `/dashboard/results/export/${resultId}/`;
+    form.target = '_blank';
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+}
+
+function deleteResult(resultId, mode) {
+    if (confirm(`Are you sure you want to delete this ${mode} calculation? This action cannot be undone.`)) {
+        // Create a form to submit the delete request
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/dashboard/results/delete/${resultId}/`;
+        
+        // Add CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+        
+        // Submit the form
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function deleteAllResults() {
+    if (confirm('Are you sure you want to delete all your ROI calculations? This action cannot be undone.')) {
+        // Create a form to submit the delete all request
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/dashboard/results/delete-all/'; // Assuming a URL for deleting all
+        
+        // Add CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+        
+        // Submit the form
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %} 

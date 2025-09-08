@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ROI Calculator{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Modern Color Palette */
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            --secondary-gradient: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #533483 100%);
+            --card-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            --text-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            --accent-blue: #4facfe;
+            --accent-purple: #00f2fe;
+            --accent-pink: #f093fb;
+            --accent-orange: #ff9a9e;
+            --accent-green: #a8edea;
+            --accent-yellow: #fed6e3;
+            --dark-bg: #0a0a0a;
+            --card-bg: rgba(255, 255, 255, 0.08);
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            min-height: 100vh;
+            background: var(--secondary-gradient);
+            color: #ffffff;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            position: relative;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        
+        /* Enhanced Background Effects */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        /* Animated Background Particles */
+        .particle {
+            position: fixed;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+            opacity: 0.1;
+            animation: float 8s ease-in-out infinite;
+            z-index: -1;
+        }
+        
+        .particle:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .particle:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 60%;
+            right: 10%;
+            animation-delay: 2s;
+        }
+        
+        .particle:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+        
+        .particle:nth-child(4) {
+            width: 100px;
+            height: 100px;
+            top: 30%;
+            right: 30%;
+            animation-delay: 6s;
+        }
+    
+        @keyframes float {
+            0%, 100% { 
+                transform: translateY(0px) rotate(0deg) scale(1);
+                opacity: 0.1;
+            }
+            50% { 
+                transform: translateY(-30px) rotate(180deg) scale(1.1);
+                opacity: 0.3;
+            }
+        }
+        
+        /* Enhanced Navbar */
+        .navbar {
+            background: rgba(255, 255, 255, 0.05) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            padding: 1rem 0;
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.8rem;
+            background: var(--text-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+            font-weight: 500;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            padding: 0.5rem 1rem !important;
+            border-radius: 12px;
+            margin: 0 0.25rem;
+        }
+        
+        .nav-link:hover {
+            color: #ffffff !important;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--primary-gradient);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+            border-radius: 1px;
+        }
+        
+        .nav-link:hover::before {
+            width: 80%;
+        }
+        
+        /* Enhanced Cards */
+        .gradient-card {
+            background: var(--card-gradient);
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .gradient-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+        
+        .gradient-card:hover::before {
+            left: 100%;
+        }
+        
+        .gradient-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Enhanced Buttons */
+        .btn-gradient {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 16px;
+            padding: 14px 28px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-gradient::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s ease;
+        }
+        
+        .btn-gradient:hover::before {
+            left: 100%;
+        }
+        
+        .btn-gradient:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 12px 30px rgba(102, 126, 234, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            color: white;
+            text-decoration: none;
+        }
+        
+        /* Enhanced Form Controls */
+        .form-control {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            color: #ffffff !important;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            padding: 12px 16px;
+            font-size: 1rem;
+        }
+        
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--accent-blue);
+            box-shadow: 
+                0 0 0 4px rgba(79, 172, 254, 0.1),
+                0 8px 25px rgba(79, 172, 254, 0.2);
+            color: #ffffff !important;
+        }
+        
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.6) !important;
+        }
+        
+        /* Fix for input text visibility */
+        .form-control input,
+        .form-control textarea,
+        .form-control select {
+            color: #ffffff !important;
+        }
+        
+        /* Ensure form labels are visible */
+        .form-label {
+            color: #8b5cf6 !important;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        /* Fix for Django form labels */
+        label {
+            color: #8b5cf6 !important;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        /* Fix for any Bootstrap form elements */
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="number"],
+        input[type="tel"],
+        input[type="url"],
+        textarea,
+        select {
+            color: #000000 !important;
+            background-color: #ffffff !important;
+        }
+        
+        /* Fix for dropdown options */
+        select option {
+            background-color: #ffffff;
+            color: #000000;
+        }
+        
+        /* Additional fixes for form elements */
+        .form-group label,
+        .mb-3 label,
+        .mb-4 label {
+            color: #8b5cf6 !important;
+            font-weight: 600;
+        }
+        
+        /* Fix for Django form field labels */
+        .form-control + label,
+        label + .form-control {
+            color: #8b5cf6 !important;
+        }
+        
+        /* Enhanced Text Gradients */
+        .text-gradient {
+            background: var(--text-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        /* Enhanced Alerts */
+        .alert {
+            border-radius: 16px;
+            border: none;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
+        }
+        
+        /* Enhanced Metric Cards */
+        .metric-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 24px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-6px);
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: var(--text-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .metric-title {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+        
+        /* Enhanced Badges */
+        .badge-custom {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px 20px;
+            font-size: 0.95rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .badge-custom:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        /* Enhanced Accordion */
+        .accordion-button {
+            background: rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid var(--border-color);
+            color: #ffffff !important;
+            border-radius: 16px !important;
+            font-weight: 600;
+            padding: 1rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .accordion-button:not(.collapsed) {
+            background: rgba(102, 126, 234, 0.2) !important;
+            border-color: var(--accent-blue);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+        }
+        
+        .accordion-button:focus {
+            box-shadow: 0 0 0 4px rgba(79, 172, 254, 0.1);
+        }
+        
+        .accordion-body {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 16px 16px;
+            padding: 1.5rem;
+        }
+        
+        /* Enhanced Scrollbar */
+        .scroll-area {
+            max-height: 70vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+        }
+        
+        .scroll-area::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .scroll-area::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .scroll-area::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 4px;
+        }
+        
+        .scroll-area::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, var(--accent-purple), var(--accent-pink));
+        }
+        
+        /* Enhanced Icons */
+        .icon-glow {
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+        
+        /* Loading Animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+
+        /* Floating Chatbot Styles */
+        .floating-chatbot {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .chatbot-toggle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chatbot-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+        }
+
+        .chatbot-toggle:active {
+            transform: scale(0.95);
+        }
+
+        .chatbot-pulse {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            animation: pulse 2s infinite;
+            z-index: -1;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.4);
+                opacity: 0;
+            }
+        }
+
+        /* Chatbot Container Styles */
+        .chatbot-container {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 400px;
+            height: 600px;
+            background: var(--card-gradient);
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform: translateY(100%) scale(0.8);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+        }
+
+        .chatbot-container.open {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .chatbot-header {
+            background: var(--primary-gradient);
+            padding: 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .chatbot-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chatbot-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        .chatbot-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .message.user {
+            background: var(--primary-gradient);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.bot {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            border: 1px solid var(--border-color);
+        }
+
+        .chatbot-input-container {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .chatbot-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .chatbot-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            padding: 12px 20px;
+            color: white;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .chatbot-input:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .chatbot-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .chatbot-send {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .chatbot-send:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .chatbot-send:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            border-bottom-left-radius: 5px;
+            max-width: 80px;
+            align-self: flex-start;
+            border: 1px solid var(--border-color);
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 80%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .error-message {
+            background: rgba(255, 99, 99, 0.2);
+            border: 1px solid rgba(255, 99, 99, 0.3);
+            color: #ff6b6b;
+            padding: 12px 16px;
+            border-radius: 18px;
+            border-bottom-left-radius: 5px;
+            max-width: 80%;
+            align-self: flex-start;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.5rem;
+            }
+            
+            .gradient-card {
+                border-radius: 20px;
+                margin-bottom: 1rem;
+            }
+            
+            .btn-gradient {
+                padding: 12px 24px;
+                font-size: 0.95rem;
+            }
+
+            .floating-chatbot {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .chatbot-container {
+                width: calc(100vw - 40px);
+                height: calc(100vh - 120px);
+                bottom: 80px;
+                right: 20px;
+                left: 20px;
+            }
+
+            .chatbot-toggle {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    
+    <!-- Animated Background Particles -->
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-chart-line me-2 icon-glow"></i>ROI Calculator
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dashboard/">
+                                <i class="fas fa-tachometer-alt me-1 icon-glow"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dashboard/quick/">
+                                <i class="fas fa-rocket me-1 icon-glow"></i>Quick Estimate
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dashboard/full/">
+                                <i class="fas fa-calculator me-1 icon-glow"></i>Full Calculator
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dashboard/results/">
+                                <i class="fas fa-history me-1 icon-glow"></i>My Results
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dashboard/payment/history/">
+                                <i class="fas fa-credit-card me-1 icon-glow"></i>Payments
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/contact/">
+                                <i class="fas fa-envelope me-1 icon-glow"></i>Contact
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user me-1 icon-glow"></i>{{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <form method="post" action="/logout/" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item" style="background: none; border: none; width: 100%; text-align: left; padding: 0.375rem 1rem;">
+                                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">
+                                <i class="fas fa-home me-1 icon-glow"></i>Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/contact/">
+                                <i class="fas fa-envelope me-1 icon-glow"></i>Contact
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/login/">
+                                <i class="fas fa-sign-in-alt me-1 icon-glow"></i>Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/register/">
+                                <i class="fas fa-user-plus me-1 icon-glow"></i>Register
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-info-circle me-2 icon-glow"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Floating Chatbot Icon (only for authenticated users) -->
+    {% if user.is_authenticated %}
+    <div id="floatingChatbot" class="floating-chatbot">
+        <button class="chatbot-toggle" onclick="toggleChatbot()" title="AI Assistant">
+            <i class="fas fa-robot"></i>
+            <span class="chatbot-pulse"></span>
+        </button>
+    </div>
+
+    <!-- Chatbot Modal -->
+    <div id="chatbotModal" class="chatbot-container">
+        <div class="chatbot-header">
+            <div class="chatbot-title">
+                <i class="fas fa-robot"></i>
+                <span>AI Assistant</span>
+            </div>
+            <button class="chatbot-close" onclick="closeChatbot()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="chatbot-messages" id="chatbotMessages">
+            <div class="message bot">
+                <strong>AI Assistant:</strong> Hello! I'm here to help you with ROI calculations, cloud optimization, and any questions about our calculator. How can I assist you today?
+            </div>
+        </div>
+        
+        <div class="chatbot-input-container">
+            <div class="chatbot-input-wrapper">
+                <input 
+                    type="text" 
+                    class="chatbot-input" 
+                    id="chatbotInput" 
+                    placeholder="Type your message here..."
+                    onkeypress="handleKeyPress(event)"
+                >
+                <button class="chatbot-send" id="chatbotSend" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+    // Handle logout form submission
+    document.addEventListener('DOMContentLoaded', function() {
+        const logoutForm = document.querySelector('form[action="/logout/"]');
+        if (logoutForm) {
+            logoutForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to logout?')) {
+                    this.submit();
+                }
+            });
+        }
+
+    });
+
+    // Chatbot functionality
+    let isChatbotOpen = false;
+    let isLoading = false;
+
+    function toggleChatbot() {
+        const modal = document.getElementById('chatbotModal');
+        if (isChatbotOpen) {
+            closeChatbot();
+        } else {
+            openChatbot();
+        }
+    }
+
+    function openChatbot() {
+        const modal = document.getElementById('chatbotModal');
+        modal.classList.add('open');
+        isChatbotOpen = true;
+        
+        // Focus on input
+        setTimeout(() => {
+            document.getElementById('chatbotInput').focus();
+        }, 300);
+    }
+
+    function closeChatbot() {
+        const modal = document.getElementById('chatbotModal');
+        modal.classList.remove('open');
+        isChatbotOpen = false;
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
+    }
+
+    function addMessage(content, isUser = false, isError = false) {
+        const messagesContainer = document.getElementById('chatbotMessages');
+        const messageDiv = document.createElement('div');
+        
+        if (isError) {
+            messageDiv.className = 'error-message';
+            messageDiv.innerHTML = `<strong>Error:</strong> ${content}`;
+        } else {
+            messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+            if (isUser) {
+                messageDiv.innerHTML = `<strong>You:</strong> ${content}`;
+            } else {
+                messageDiv.innerHTML = `<strong>AI Assistant:</strong> ${content}`;
+            }
+        }
+        
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+        const messagesContainer = document.getElementById('chatbotMessages');
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'typing-indicator';
+        typingDiv.id = 'typingIndicator';
+        typingDiv.innerHTML = `
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        `;
+        
+        messagesContainer.appendChild(typingDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function hideTypingIndicator() {
+        const typingIndicator = document.getElementById('typingIndicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+
+    async function sendMessage() {
+        if (isLoading) return;
+        
+        const input = document.getElementById('chatbotInput');
+        const sendButton = document.getElementById('chatbotSend');
+        const message = input.value.trim();
+        
+        if (!message) return;
+        
+        // Add user message
+        addMessage(message, true);
+        input.value = '';
+        
+        // Show typing indicator
+        showTypingIndicator();
+        isLoading = true;
+        sendButton.disabled = true;
+        
+        try {
+            const response = await fetch('/dashboard/chatbot/api/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ message: message })
+            });
+            
+            const data = await response.json();
+            
+            hideTypingIndicator();
+            
+            if (data.success) {
+                addMessage(data.response, false);
+            } else {
+                addMessage(data.error || 'An error occurred while processing your request.', false, true);
+            }
+        } catch (error) {
+            hideTypingIndicator();
+            addMessage('Failed to connect to the AI assistant. Please try again.', false, true);
+            console.error('Chatbot error:', error);
+        } finally {
+            isLoading = false;
+            sendButton.disabled = false;
+            input.focus();
+        }
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Close chatbot when clicking outside
+    document.addEventListener('click', function(event) {
+        const modal = document.getElementById('chatbotModal');
+        const toggleButton = event.target.closest('.chatbot-toggle');
+        
+        if (isChatbotOpen && !modal.contains(event.target) && !toggleButton) {
+            closeChatbot();
+        }
+    });
+
+    // Auto-open chatbot if URL contains #chatbot
+    if (window.location.hash === '#chatbot') {
+        setTimeout(openChatbot, 500);
+    }
+
+    </script>
+    {% block extra_js %}{% endblock %}
+
+    <script>
+function formatValue(val, isCurrency, isPercentage) {
+  if (isCurrency) {
+    if (val >= 1000000) return "$" + (val / 1000000).toFixed(0) + "M";
+    if (val >= 1000) return "$" + (val / 1000).toFixed(0) + "K";
+    return "$" + parseFloat(val).toLocaleString();
+  }
+  if (isPercentage) {
+    return parseFloat(val).toFixed(1) + "%";
+  }
+  return val;
+}
+
+function updateSliderValue(id, isCurrency, isPercentage) {
+  const slider = document.getElementById(id + "-slider");
+  const input = document.getElementById(id + "-input");
+  const display = document.getElementById(id + "-display");
+
+  input.value = slider.value;
+  display.innerText = formatValue(slider.value, isCurrency, isPercentage);
+}
+
+function updateInputValue(id, isCurrency, isPercentage) {
+  const input = document.getElementById(id + "-input");
+  const slider = document.getElementById(id + "-slider");
+  const display = document.getElementById(id + "-display");
+
+  let val = parseFloat(input.value);
+  if (!isNaN(val) && val >= parseFloat(slider.min) && val <= parseFloat(slider.max)) {
+    slider.value = val;
+    display.innerText = formatValue(val, isCurrency, isPercentage);
+  }
+}
+</script>
+
+</body>
+</html> 

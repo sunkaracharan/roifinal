@@ -1,0 +1,464 @@
+{% extends 'base.html' %}
+{% block title %}Quick Estimate | ROI Calculator{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <div class="text-center mb-4">
+    <h2 class="display-5 fw-bold text-gradient">Quick ROI Calculator</h2>
+    <p class="text-secondary fs-5">Get instant estimates with just 3 key inputs</p>
+  </div>
+  <div class="row g-4">
+    <!-- Quick Inputs -->
+    <div class="col-lg-6">
+      <div class="card bg-dark text-light shadow">
+        <div class="card-header fs-4 fw-semibold">
+          <span>🧮 Quick Inputs</span>
+        </div>
+        <div class="card-body">
+          {% csrf_token %}
+          <form id="quick-form">
+            <div class="mb-4">
+              <label class="form-label">💰 Annual Revenue: <span id="annualRevenueLabel">${{ annual_revenue|floatformat:0 }}</span></label>
+              <input type="range" class="form-range smooth-slider" min="1000000" max="1000000000" step="1000000" id="annualRevenue" name="annualRevenue" value="{{ annual_revenue }}">
+              <input type="number" class="form-control mt-2" min="1000000" max="1000000000" step="1000000" id="annualRevenueInput" value="{{ annual_revenue }}">
+            </div>
+ 
+            <div class="mb-4">
+              <label class="form-label">☁️ Annual Cloud Spend: <span id="annualCloudSpendLabel">${{ annual_cloud_spend|floatformat:0 }}</span></label>
+              <input type="range" class="form-range smooth-slider" min="100000" max="100000000" step="100000" id="annualCloudSpend" name="annualCloudSpend" value="{{ annual_cloud_spend }}">
+              <input type="number" class="form-control mt-2" min="100000" max="100000000" step="100000" id="annualCloudSpendInput" value="{{ annual_cloud_spend }}">
+            </div>
+ 
+            <div class="mb-4">
+              <label class="form-label">👥 Number of Engineers: <span id="numEngineersLabel">{{ num_engineers }}</span></label>
+              <input type="range" class="form-range smooth-slider" min="1" max="1000" step="1" id="numEngineers" name="numEngineers" value="{{ num_engineers }}">
+              <input type="number" class="form-control mt-2" min="1" max="1000" step="1" id="numEngineersInput" value="{{ num_engineers }}">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- Quick Results -->
+    <div class="col-lg-6">
+      <div class="card bg-dark text-light shadow">
+        <div class="card-header fs-4 fw-semibold">
+          <span>📈 Quick Results</span>
+        </div>
+        <div class="card-body">
+          <div class="card bg-gradient mb-4">
+            <div class="card-header fs-5 fw-bold text-primary text-center">
+              💎 Total Annual ROI: <span id="totalAnnualGain">${{ total_annual_gain|floatformat:0 }}</span>
+            </div>
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-md-6 text-center">
+                  <canvas id="roiChart" style="max-width: 200px; max-height: 200px;"></canvas>
+                </div>
+                <div class="col-md-6">
+                  <div id="chartLegend" class="chart-legend">
+                    <!-- Legend will be populated by JavaScript -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row text-center mb-4">
+            <div class="col">
+              <div class="card bg-gradient p-2">
+                <div class="fw-bold fs-4 text-info" id="roiPercent">{{ roi_percent|floatformat:0 }}%</div>
+                <div class="text-secondary">ROI</div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="card bg-gradient p-2">
+                <div class="fw-bold fs-4 text-success" id="paybackMonths">{{ payback_months|floatformat:1 }}mo</div>
+                <div class="text-secondary">Payback</div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="card bg-gradient p-2">
+                <div class="fw-bold fs-4 text-warning" id="cloudSavings">${{ cloud_savings|floatformat:0 }}</div>
+                <div class="text-secondary">Cloud Savings</div>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-primary w-100 mb-2" id="saveResultsBtn">💾 Save Results</button>
+          <a href="{% url 'full_calculator' %}" class="btn btn-outline-secondary w-100">🧮 Open Full Calculator</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Enhanced ROI Calculator with TypeScript logic converted to JavaScript
+  class QuickROICalculator {
+    constructor() {
+      this.initializeElements();
+      this.setupEventListeners();
+      this.initializeChart();
+      this.calculateResults();
+    }
+ 
+    initializeElements() {
+      this.sliders = {
+        annualRevenue: document.getElementById('annualRevenue'),
+        annualCloudSpend: document.getElementById('annualCloudSpend'),
+        numEngineers: document.getElementById('numEngineers')
+      };
+     
+      this.inputs = {
+        annualRevenue: document.getElementById('annualRevenueInput'),
+        annualCloudSpend: document.getElementById('annualCloudSpendInput'),
+        numEngineers: document.getElementById('numEngineersInput')
+      };
+     
+      this.labels = {
+        annualRevenue: document.getElementById('annualRevenueLabel'),
+        annualCloudSpend: document.getElementById('annualCloudSpendLabel'),
+        numEngineers: document.getElementById('numEngineersLabel')
+      };
+     
+      this.results = {
+        totalAnnualGain: document.getElementById('totalAnnualGain'),
+        roiPercent: document.getElementById('roiPercent'),
+        paybackMonths: document.getElementById('paybackMonths'),
+        cloudSavings: document.getElementById('cloudSavings')
+      };
+    }
+ 
+    setupEventListeners() {
+      // Sync sliders and number inputs
+      Object.keys(this.sliders).forEach(key => {
+        const slider = this.sliders[key];
+        const input = this.inputs[key];
+        const label = this.labels[key];
+       
+        slider.addEventListener('input', () => {
+          input.value = slider.value;
+          this.updateLabel(key, slider.value);
+          this.calculateResults();
+        });
+       
+        input.addEventListener('input', () => {
+          slider.value = input.value;
+          this.updateLabel(key, input.value);
+          this.calculateResults();
+        });
+      });
+ 
+      // Save results button
+      document.getElementById('saveResultsBtn').addEventListener('click', () => this.saveResults());
+    }
+ 
+    updateLabel(key, value) {
+      const numValue = Number(value);
+      if (key === 'annualRevenue' || key === 'annualCloudSpend') {
+        this.labels[key].textContent = '$' + numValue.toLocaleString();
+      } else {
+        this.labels[key].textContent = numValue.toLocaleString();
+      }
+    }
+ 
+ initializeChart() {
+      const ctx = document.getElementById('roiChart').getContext('2d');
+      this.chart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Cloud Savings', 'Productivity', 'Performance', 'Availability'],
+          datasets: [{
+            data: [1, 1, 1, 1],
+            backgroundColor: ['#36a2eb', '#ffcd56', '#4bc0c0', '#9966ff'],
+            borderWidth: 2,
+            borderColor: "#2c2c2c"
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: {
+              display: false // Disable built-in legend
+            }
+          }
+        }
+      });
+    }
+
+
+    calculateResults() {
+      const annualRevenue = Number(this.sliders.annualRevenue.value);
+      const annualCloudSpend = Number(this.sliders.annualCloudSpend.value);
+      const numEngineers = Number(this.sliders.numEngineers.value);
+ 
+      // Enhanced calculation logic from TypeScript version
+      const grossMargin = 80;
+      const containerAppFraction = 90;
+      const computeSpendFraction = 60;
+      const costSensitiveFraction = 50;
+      const engineerCostPerYear = 150000;
+      const opsTimeFraction = 15;
+      const opsToilFraction = 50;
+      const toilReductionFraction = 45;
+      const avgResponseTimeSec = 2;
+      const execTimeInfluenceFraction = 33;
+      const latRedContainer = 28;
+      const latRedServerless = 50;
+      const revenueLiftPer100ms = 1;
+      const currentFCIFraction = 2;
+      const fciReductionFraction = 75;
+      const costPer1PctFCI = 1;
+ 
+      // Calculate cloud savings
+      const computeSpend = annualCloudSpend * (computeSpendFraction / 100);
+      const costSensitiveSpend = computeSpend * (costSensitiveFraction / 100);
+      const cloudSavings = costSensitiveSpend * ((containerAppFraction / 100) * 0.5 + (1 - containerAppFraction / 100) * 0.2);
+ 
+      // Calculate productivity gain
+      const productivityGain = numEngineers * engineerCostPerYear * (opsTimeFraction / 100) * (opsToilFraction / 100) * (toilReductionFraction / 100);
+ 
+      // Calculate performance gain
+      const weightedLatRed = (containerAppFraction / 100) * (latRedContainer / 100) + (1 - containerAppFraction / 100) * (latRedServerless / 100);
+      const timeSavedSec = avgResponseTimeSec * weightedLatRed;
+      const revGainPct = (timeSavedSec / 0.1) * (revenueLiftPer100ms / 100);
+      const performanceGain = annualRevenue * revGainPct * (grossMargin / 100) * (execTimeInfluenceFraction / 100);
+ 
+      // Calculate availability gain
+      const fciCostFraction = (costPer1PctFCI / 100) * ((currentFCIFraction / 100) / 0.01);
+      const fciCost = annualRevenue * fciCostFraction * (grossMargin / 100);
+      const availabilityGain = fciCost * (fciReductionFraction / 100);
+ 
+      // Calculate total results
+      const totalAnnualGain = cloudSavings + productivityGain + performanceGain + availabilityGain;
+      const estimatedCost = totalAnnualGain / 10;
+      const roiPercent = (totalAnnualGain / (totalAnnualGain/10 + engineerCostPerYear)) * 100
+      const paybackMonths = (12 * estimatedCost) / totalAnnualGain;
+ 
+      // Update UI
+      this.updateResults({
+        cloudSavings,
+        productivityGain,
+        performanceGain,
+        availabilityGain,
+        totalAnnualGain,
+        roiPercent,
+        paybackMonths
+      });
+ 
+      // Update chart
+      this.updateChart([cloudSavings, productivityGain, performanceGain, availabilityGain]);
+    }
+ 
+    updateResults(results) {
+      this.results.totalAnnualGain.textContent = this.formatCurrency(results.totalAnnualGain);
+      this.results.roiPercent.textContent = results.roiPercent.toFixed(0) + '%';
+      this.results.paybackMonths.textContent = results.paybackMonths.toFixed(1) + 'mo';
+      this.results.cloudSavings.textContent = this.formatCurrency(results.cloudSavings);
+    }
+ 
+    updateChart(data) {
+      // Ensure all segments are visible in legend by setting minimum values
+      const adjustedData = data.map((value, index) => {
+        // If any value is 0 or very small, set it to a small positive value
+        // This ensures all legend items remain visible
+        return value <= 0 ? 0.01 : value;
+      });
+      
+      // Explicitly ensure all labels are present
+      this.chart.data.labels = ['Cloud Savings', 'Productivity', 'Performance', 'Availability'];
+      this.chart.data.datasets[0].data = adjustedData;
+      
+      this.chart.update('none'); // Update without animation to ensure immediate display
+      
+      // Update custom legend
+      this.updateCustomLegend(adjustedData);
+    }
+
+    updateCustomLegend(data) {
+      const legendContainer = document.getElementById('chartLegend');
+      const labels = ['Cloud Savings', 'Productivity', 'Performance', 'Availability'];
+      const colors = ['#36a2eb', '#ffcd56', '#4bc0c0', '#9966ff'];
+      
+      let legendHTML = '<div class="custom-legend">';
+      
+      labels.forEach((label, index) => {
+        const value = data[index];
+        const formattedValue = this.formatCurrency(value);
+        
+        legendHTML += `
+          <div class="legend-item d-flex align-items-center mb-3">
+            <div class="legend-color me-3" style="width: 20px; height: 20px; background-color: ${colors[index]}; border-radius: 50%; border: 2px solid #2c2c2c;"></div>
+            <div class="legend-text">
+              <div class="fw-bold text-white">${label}</div>
+              <div class="text-secondary small">${formattedValue}</div>
+            </div>
+          </div>
+        `;
+      });
+      
+      legendHTML += '</div>';
+      legendContainer.innerHTML = legendHTML;
+    }
+ 
+    formatCurrency(value) {
+      if (value >= 1000000) {
+        return '$' + (value / 1000000).toFixed(2) + 'M';
+      } else if (value >= 1000) {
+        return '$' + (value / 1000).toFixed(2) + 'K';
+      } else {
+        return '$' + value.toFixed(2);
+      }
+    }
+ 
+    saveResults() {
+      const results = {
+        inputs: {
+          annualRevenue: Number(this.sliders.annualRevenue.value),
+          annualCloudSpend: Number(this.sliders.annualCloudSpend.value),
+          numEngineers: Number(this.sliders.numEngineers.value)
+        },
+        results: this.getCurrentResults()
+      };
+ 
+      // Save to Django backend
+      fetch('{% url "save_quick_results" %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify(results)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Results saved successfully!');
+        } else {
+          alert('Error saving results: ' + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error saving results. Please try again.');
+      });
+    }
+ 
+    getCurrentResults() {
+      const annualRevenue = Number(this.sliders.annualRevenue.value);
+      const annualCloudSpend = Number(this.sliders.annualCloudSpend.value);
+      const numEngineers = Number(this.sliders.numEngineers.value);
+ 
+      // Recalculate to get current results
+      const grossMargin = 80;
+      const containerAppFraction = 90;
+      const computeSpendFraction = 60;
+      const costSensitiveFraction = 50;
+      const engineerCostPerYear = 150000;
+      const opsTimeFraction = 15;
+      const opsToilFraction = 50;
+      const toilReductionFraction = 45;
+      const avgResponseTimeSec = 2;
+      const execTimeInfluenceFraction = 33;
+      const latRedContainer = 28;
+      const latRedServerless = 50;
+      const revenueLiftPer100ms = 1;
+      const currentFCIFraction = 2;
+      const fciReductionFraction = 75;
+      const costPer1PctFCI = 1;
+ 
+      const computeSpend = annualCloudSpend * (computeSpendFraction / 100);
+      const costSensitiveSpend = computeSpend * (costSensitiveFraction / 100);
+      const cloudSavings = costSensitiveSpend * ((containerAppFraction / 100) * 0.5 + (1 - containerAppFraction / 100) * 0.2);
+ 
+      const productivityGain = numEngineers * engineerCostPerYear * (opsTimeFraction / 100) * (opsToilFraction / 100) * (toilReductionFraction / 100);
+ 
+      const weightedLatRed = (containerAppFraction / 100) * (latRedContainer / 100) + (1 - containerAppFraction / 100) * (latRedServerless / 100);
+      const timeSavedSec = avgResponseTimeSec * weightedLatRed;
+      const revGainPct = (timeSavedSec / 0.1) * (revenueLiftPer100ms / 100);
+      const performanceGain = annualRevenue * revGainPct * (grossMargin / 100) * (execTimeInfluenceFraction / 100);
+ 
+      const fciCostFraction = (costPer1PctFCI / 100) * ((currentFCIFraction / 100) / 0.01);
+      const fciCost = annualRevenue * fciCostFraction * (grossMargin / 100);
+      const availabilityGain = fciCost * (fciReductionFraction / 100);
+ 
+      const totalAnnualGain = cloudSavings + productivityGain + performanceGain + availabilityGain;
+      const estimatedCost = totalAnnualGain / 10;
+      const roiPercent = (totalAnnualGain / estimatedCost) * 100;
+      const paybackMonths = (12 * estimatedCost) / totalAnnualGain;
+ 
+      return {
+        cloudSavings,
+        productivityGain,
+        performanceGain,
+        availabilityGain,
+        totalAnnualGain,
+        roiPercent,
+        paybackMonths
+      };
+    }
+  }
+ 
+  // Initialize calculator when DOM is loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    new QuickROICalculator();
+  });
+</script>
+ 
+<style>
+  .text-gradient {
+    background: linear-gradient(90deg, #36a2eb, #9966ff);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+ 
+  .bg-gradient {
+    background: linear-gradient(135deg, #232526 0%, #414345 100%);
+  }
+ 
+  .smooth-slider {
+    transition: all 0.3s ease;
+  }
+ 
+  .smooth-slider:hover {
+    transform: scaleY(1.2);
+  }
+ 
+  .smooth-slider::-webkit-slider-thumb {
+    transition: all 0.3s ease;
+  }
+ 
+  .smooth-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 20px rgba(54, 162, 235, 0.5);
+  }
+
+  /* Custom Legend Styling */
+  .chart-legend {
+    padding: 20px 0;
+  }
+
+  .custom-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .legend-item {
+    transition: all 0.3s ease;
+  }
+
+  .legend-item:hover {
+    transform: translateX(5px);
+  }
+
+  .legend-color {
+    flex-shrink: 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .legend-text {
+    flex-grow: 1;
+  }
+</style>
+{% endblock %}

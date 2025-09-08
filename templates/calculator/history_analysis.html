@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Historical Analysis</h2>
+  <div class="mb-3">
+    <label for="filter-range">Show data for:</label>
+    <select id="filter-range" class="form-select" style="width:auto;display:inline-block">
+      <option value="10d">Last 10 days</option>
+      <option value="1m">Last 1 month</option>
+      <option value="2m" selected>Last 2 months</option>
+      <option value="3m">Last 3 months</option>
+      <option value="6m">Last 6 months</option>
+      <option value="1y">Last 1 year</option>
+    </select>
+  </div>
+  <div id="charts" class="row g-4">
+    <div class="col-12">
+      <div class="glass-card p-3 mb-3"><canvas id="roiChart" height="80"></canvas></div>
+    </div>
+    <div class="col-12">
+      <div class="glass-card p-3 mb-3"><canvas id="availabilityChart" height="80"></canvas></div>
+    </div>
+    <div class="col-12">
+      <div class="glass-card p-3 mb-3"><canvas id="performanceChart" height="80"></canvas></div>
+    </div>
+    <div class="col-12">
+      <div class="glass-card p-3 mb-3"><canvas id="cloudChart" height="80"></canvas></div>
+    </div>
+    <div class="col-12">
+      <div class="glass-card p-3 mb-3"><canvas id="productivityChart" height="80"></canvas></div>
+    </div>
+    <div class="col-12">
+      <div class="glass-card p-3 mb-3"><canvas id="calcCountChart" height="80"></canvas></div>
+    </div>
+  </div>
+</div>
+<style>
+.glass-card {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px 0 rgba(31, 38, 135, 0.12);
+  border: 1.5px solid rgba(255,255,255,0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: box-shadow 0.2s;
+}
+.glass-card:hover {
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+function fetchAndRender(range) {
+  fetch(`/dashboard/history/analysis/data/?range=${range}`)
+    .then(r => r.json())
+    .then(data => {
+      renderCharts(data);
+    });
+}
+function renderCharts(data) {
+  // Chart.js global defaults for better readability
+  Chart.defaults.color = '#222';
+  Chart.defaults.font.size = 16;
+  // Destroy old charts if any
+  if(window._roiChart) window._roiChart.destroy();
+  if(window._availabilityChart) window._availabilityChart.destroy();
+  if(window._performanceChart) window._performanceChart.destroy();
+  if(window._cloudChart) window._cloudChart.destroy();
+  if(window._productivityChart) window._productivityChart.destroy();
+  if(window._calcCountChart) window._calcCountChart.destroy();
+
+  const baseOptions = {
+    responsive: true,
+    plugins: {
+      legend: {labels: {color: '#222', font: {size: 16}}},
+      title: {display: true, color: '#222', font: {size: 18}},
+    },
+    scales: {
+      x: {ticks: {color: '#222', font: {size: 14}}},
+      y: {ticks: {color: '#222', font: {size: 14}}}
+    },
+    backgroundColor: '#fff',
+  };
+
+  const ctx1 = document.getElementById('roiChart').getContext('2d');
+  window._roiChart = new Chart(ctx1, {
+    type: 'line',
+    data: {labels: data.dates, datasets: [{label: 'ROI %', data: data.roi_percent, borderColor: 'blue', fill: false}]},
+    options: {...baseOptions, plugins: {...baseOptions.plugins, title: {display: true, text: 'ROI Percent Over Time', color: '#222', font: {size: 18}}}}
+  });
+  const ctx2 = document.getElementById('availabilityChart').getContext('2d');
+  window._availabilityChart = new Chart(ctx2, {
+    type: 'line',
+    data: {labels: data.dates, datasets: [{label: 'Availability Gain', data: data.availability_gain, borderColor: 'green', fill: false}]},
+    options: {...baseOptions, plugins: {...baseOptions.plugins, title: {display: true, text: 'Availability Gain Over Time', color: '#222', font: {size: 18}}}}
+  });
+  const ctx3 = document.getElementById('performanceChart').getContext('2d');
+  window._performanceChart = new Chart(ctx3, {
+    type: 'line',
+    data: {labels: data.dates, datasets: [{label: 'Performance Gain', data: data.performance_gain, borderColor: 'orange', fill: false}]},
+    options: {...baseOptions, plugins: {...baseOptions.plugins, title: {display: true, text: 'Performance Gain Over Time', color: '#222', font: {size: 18}}}}
+  });
+  const ctx4 = document.getElementById('cloudChart').getContext('2d');
+  window._cloudChart = new Chart(ctx4, {
+    type: 'line',
+    data: {labels: data.dates, datasets: [{label: 'Cloud Savings', data: data.cloud_savings, borderColor: 'purple', fill: false}]},
+    options: {...baseOptions, plugins: {...baseOptions.plugins, title: {display: true, text: 'Cloud Savings Over Time', color: '#222', font: {size: 18}}}}
+  });
+  const ctx5 = document.getElementById('productivityChart').getContext('2d');
+  window._productivityChart = new Chart(ctx5, {
+    type: 'line',
+    data: {labels: data.dates, datasets: [{label: 'Productivity Gain', data: data.productivity_gain, borderColor: 'red', fill: false}]},
+    options: {...baseOptions, plugins: {...baseOptions.plugins, title: {display: true, text: 'Productivity Gain Over Time', color: '#222', font: {size: 18}}}}
+  });
+  // Calculations per period (bar chart)
+  const calcLabels = Object.keys(data.calculations_per_period);
+  const calcCounts = Object.values(data.calculations_per_period);
+  const ctx6 = document.getElementById('calcCountChart').getContext('2d');
+  window._calcCountChart = new Chart(ctx6, {
+    type: 'bar',
+    data: {labels: calcLabels, datasets: [{label: 'Calculations', data: calcCounts, backgroundColor: 'teal'}]},
+    options: {...baseOptions, plugins: {...baseOptions.plugins, title: {display: true, text: 'Calculations Per Period', color: '#222', font: {size: 18}}}}
+  });
+}
+document.getElementById('filter-range').addEventListener('change', function() {
+  fetchAndRender(this.value);
+});
+// Initial load
+fetchAndRender(document.getElementById('filter-range').value);
+</script>
+{% endblock %}

@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+{% block title %}ROI Calculator - Calculate Your Cloud Investment Returns{% endblock %}
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section min-vh-100 d-flex align-items-center">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <div class="hero-content">
+                    <h1 class="display-3 text-gradient fw-bold mb-4">
+                        Calculate Your Cloud ROI with Precision
+                    </h1>
+                    <p class="lead mb-4 text-light">
+                        Make informed decisions about your cloud investments with our advanced ROI calculator. 
+                        Get instant insights into potential savings, productivity gains, and performance improvements.
+                    </p>
+                    <div class="hero-stats row mb-5">
+                        <div class="col-4">
+                            <div class="text-center">
+                                <div class="h2 fw-bold text-primary mb-1">95%</div>
+                                <small class="text-muted">Accuracy Rate</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-center">
+                                <div class="h2 fw-bold text-success mb-1">10K+</div>
+                                <small class="text-muted">Calculations</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-center">
+                                <div class="h2 fw-bold text-warning mb-1">24/7</div>
+                                <small class="text-muted">Available</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3 flex-wrap">
+                        <a href="/register/" class="btn btn-gradient btn-lg">
+                            <i class="fas fa-rocket me-2"></i>Get Started Free
+                        </a>
+                        <a href="/contact/" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-envelope me-2"></i>Contact Us
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-visual text-center">
+                    <div class="gradient-card p-5">
+                        <div class="position-relative">
+                            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 120px; height: 120px;">
+                                <i class="fas fa-chart-line fa-3x text-primary"></i>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="metric-card">
+                                        <div class="metric-value text-primary">$2.5M</div>
+                                        <div class="metric-title">Average Savings</div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="metric-card">
+                                        <div class="metric-value text-success">340%</div>
+                                        <div class="metric-title">Average ROI</div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="metric-card">
+                                        <div class="metric-value text-warning">8.2 mo</div>
+                                        <div class="metric-title">Payback Period</div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="metric-card">
+                                        <div class="metric-value text-info">14 days</div>
+                                        <div class="metric-title">Time to Value</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="text-gradient fw-bold mb-3">Why Choose Our ROI Calculator?</h2>
+            <p class="lead text-muted">Advanced features designed for modern cloud investments</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="gradient-card p-4 h-100 text-center">
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-bolt fa-2x text-primary"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Lightning Fast</h4>
+                    <p class="text-muted mb-0">Get instant ROI calculations with our optimized algorithms. No waiting, no delays.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="gradient-card p-4 h-100 text-center">
+                    <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-shield-alt fa-2x text-success"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Secure & Private</h4>
+                    <p class="text-muted mb-0">Your data is protected with enterprise-grade security. Your calculations stay private.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="gradient-card p-4 h-100 text-center">
+                    <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fas fa-chart-bar fa-2x text-warning"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Accurate Results</h4>
+                    <p class="text-muted mb-0">Based on proven ROI models and industry best practices for reliable insights.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="how-it-works py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="text-gradient fw-bold mb-3">How It Works</h2>
+            <p class="lead text-muted">Three simple steps to calculate your cloud ROI</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="gradient-card p-4 text-center position-relative">
+                    <div class="position-absolute top-0 start-50 translate-middle">
+                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <span class="fw-bold text-white">1</span>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-user-plus fa-2x text-primary"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Create Account</h4>
+                        <p class="text-muted mb-0">Sign up for free and get instant access to our advanced ROI calculator.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="gradient-card p-4 text-center position-relative">
+                    <div class="position-absolute top-0 start-50 translate-middle">
+                        <div class="bg-success rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <span class="fw-bold text-white">2</span>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-calculator fa-2x text-success"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Input Data</h4>
+                        <p class="text-muted mb-0">Enter your business metrics and cloud spending information.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="gradient-card p-4 text-center position-relative">
+                    <div class="position-absolute top-0 start-50 translate-middle">
+                        <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <span class="fw-bold text-white">3</span>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-chart-pie fa-2x text-warning"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Get Results</h4>
+                        <p class="text-muted mb-0">Receive detailed ROI analysis with actionable insights and recommendations.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section py-5">
+    <div class="container">
+        <div class="gradient-card p-5 text-center">
+            <h2 class="text-gradient fw-bold mb-4">Ready to Calculate Your Cloud ROI?</h2>
+            <p class="lead mb-4 text-light">
+                Join thousands of businesses making informed cloud investment decisions. 
+                Start your free ROI calculation today.
+            </p>
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <a href="/register/" class="btn btn-gradient btn-lg">
+                    <i class="fas fa-rocket me-2"></i>Start Calculating Now
+                </a>
+                <a href="/contact/" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-headset me-2"></i>Get Support
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer-section py-4 mt-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <p class="mb-0 text-muted">
+                    © 2024 ROI Calculator. All rights reserved.
+                </p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <div class="d-flex gap-3 justify-content-md-end">
+                    <a href="/contact/" class="text-muted text-decoration-none">
+                        <i class="fas fa-envelope me-1"></i>Contact
+                    </a>
+                    <a href="/register/" class="text-muted text-decoration-none">
+                        <i class="fas fa-user-plus me-1"></i>Register
+                    </a>
+                    <a href="/login/" class="text-muted text-decoration-none">
+                        <i class="fas fa-sign-in-alt me-1"></i>Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+{% endblock %} 

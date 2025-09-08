@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment Failed - ROI Calculator{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="gradient-card p-5 text-center">
+                <div class="mb-4">
+                    <i class="fas fa-times-circle fa-4x text-danger mb-3"></i>
+                    <h1 class="text-gradient mb-3">Payment Failed</h1>
+                    <p class="lead text-white-50">
+                        Your payment could not be processed. Please try again or contact support.
+                    </p>
+                </div>
+
+                <!-- Common Issues -->
+                <div class="gradient-card p-4 mb-4">
+                    <h3 class="text-gradient mb-3">Common Issues</h3>
+                    <div class="text-start">
+                        <div class="mb-3">
+                            <i class="fas fa-credit-card text-warning me-2"></i>
+                            <span class="text-white">Insufficient funds in your account</span>
+                        </div>
+                        <div class="mb-3">
+                            <i class="fas fa-wifi text-warning me-2"></i>
+                            <span class="text-white">Network connectivity issues</span>
+                        </div>
+                        <div class="mb-3">
+                            <i class="fas fa-shield-alt text-warning me-2"></i>
+                            <span class="text-white">Bank security restrictions</span>
+                        </div>
+                        <div class="mb-0">
+                            <i class="fas fa-clock text-warning me-2"></i>
+                            <span class="text-white">Payment timeout</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Help Section -->
+                <div class="alert alert-info">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    <strong>Need Help?</strong> Contact our support team or try using a different payment method.
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{% url 'payment_required' %}" class="btn btn-gradient">
+                        <i class="fas fa-redo me-2"></i>Try Again
+                    </a>
+                    <a href="{% url 'dashboard_home' %}" class="btn btn-outline-light">
+                        <i class="fas fa-home me-2"></i>Dashboard
+                    </a>
+                    <a href="{% url 'contact' %}" class="btn btn-outline-light">
+                        <i class="fas fa-envelope me-2"></i>Contact Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

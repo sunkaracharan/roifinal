@@ -1,0 +1,1242 @@
+{% extends 'base.html' %}
+{% block title %}Full Calculator Mode | ROI Calculator{% endblock %}
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+{% endblock %}
+{% block content %}
+
+<div class="container py-5">
+  <div class="text-center mb-4">
+    <h2 class="display-5 fw-bold text-gradient">🚀 Full ROI Calculator</h2>
+    <p class="text-secondary fs-5">Comprehensive analysis with detailed inputs and outputs</p>
+    
+    <!-- Calculation Limit Info -->
+    {% if is_admin %}
+    <div class="row justify-content-center mb-3">
+      <div class="col-md-6">
+        <div class="alert alert-success d-flex align-items-center justify-content-center">
+          <i class="fas fa-crown me-2"></i>
+          <span><strong>Admin Access:</strong> Unlimited calculations</span>
+        </div>
+      </div>
+    </div>
+    {% elif has_unlimited_access %}
+    <div class="row justify-content-center mb-3">
+      <div class="col-md-6">
+        <div class="alert alert-success d-flex align-items-center justify-content-center">
+          <i class="fas fa-infinity me-2"></i>
+          <span><strong>Unlimited Access:</strong> Purchased on {{ unlimited_access_purchased_at|date:"M d, Y" }}</span>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="row justify-content-center mb-3">
+      <div class="col-md-6">
+        <div class="alert alert-info d-flex align-items-center justify-content-center">
+          <i class="fas fa-info-circle me-2"></i>
+          <span>
+            <strong>Free Calculations:</strong> 
+            {% if remaining_calculations > 0 %}
+              <span class="text-success">{{ remaining_calculations }} remaining</span>
+            {% else %}
+              <span class="text-warning">0 remaining - Payment required</span>
+            {% endif %}
+          </span>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  
+  <div class="row g-4">
+    <!-- Left Panel - Inputs -->
+    <div class="col-lg-6">
+      <div class="card bg-dark text-light shadow">
+        <div class="card-header fs-4 fw-semibold">
+          <span>🧮 Calculator Inputs</span>
+        </div>
+        <div class="card-body">
+          {% csrf_token %}
+          
+          <!-- Business & Technology Drivers -->
+          <div class="accordion" id="roiAccordion">
+            <div class="accordion-item bg-dark border-secondary mb-3">
+              <h2 class="accordion-header">
+                <button class="accordion-button bg-dark text-light collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#businessCollapse">
+                  💼 Business & Technology Drivers
+                </button>
+              </h2>
+              <div id="businessCollapse" class="accordion-collapse collapse" data-bs-parent="#roiAccordion">
+                <div class="accordion-body">
+                  <div class="mb-4">
+                    <label class="form-label">💰 Annual Revenue: <span id="annualRevenueLabel">${{ form.annual_revenue.value|default:100000000|floatformat:0 }}</span></label>
+                    <input type="range" class="form-range smooth-slider" min="1000000" max="1000000000" step="1000000" id="annualRevenue" value="{{ form.annual_revenue.value|default:100000000 }}">
+                    <input type="number" class="form-control mt-2" min="1000000" max="1000000000" step="1000000" id="annualRevenueInput" value="{{ form.annual_revenue.value|default:100000000 }}">
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label">📊 Gross Margin: <span id="grossMarginLabel">{{ form.gross_margin.value|default:80 }}%</span></label>
+                    <input type="range" class="form-range smooth-slider" min="0" max="100" step="1" id="grossMargin" value="{{ form.gross_margin.value|default:80 }}">
+                    <input type="number" class="form-control mt-2" min="0" max="100" step="1" id="grossMarginInput" value="{{ form.gross_margin.value|default:80 }}">
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label">📦 Container App Fraction: <span id="containerAppFractionLabel">{{ form.container_app_fraction.value|default:90 }}%</span></label>
+                    <input type="range" class="form-range smooth-slider" min="0" max="100" step="1" id="containerAppFraction" value="{{ form.container_app_fraction.value|default:90 }}">
+                    <input type="number" class="form-control mt-2" min="0" max="100" step="1" id="containerAppFractionInput" value="{{ form.container_app_fraction.value|default:90 }}">
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label">☁️ Annual Cloud Spend: <span id="annualCloudSpendLabel">${{ form.annual_cloud_spend.value|default:10000000|floatformat:0 }}</span></label>
+                    <input type="range" class="form-range smooth-slider" min="100000" max="100000000" step="100000" id="annualCloudSpend" value="{{ form.annual_cloud_spend.value|default:10000000 }}">
+                    <input type="number" class="form-control mt-2" min="100000" max="100000000" step="100000" id="annualCloudSpendInput" value="{{ form.annual_cloud_spend.value|default:10000000 }}">
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label">💻 Compute Spend Fraction: <span id="computeSpendFractionLabel">{{ form.compute_spend_fraction.value|default:60 }}%</span></label>
+                    <input type="range" class="form-range smooth-slider" min="0" max="100" step="1" id="computeSpendFraction" value="{{ form.compute_spend_fraction.value|default:60 }}">
+                    <input type="number" class="form-control mt-2" min="0" max="100" step="1" id="computeSpendFractionInput" value="{{ form.compute_spend_fraction.value|default:60 }}">
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label">💸 Cost Sensitive Fraction: <span id="costSensitiveFractionLabel">{{ form.cost_sensitive_fraction.value|default:50 }}%</span></label>
+                    <input type="range" class="form-range smooth-slider" min="0" max="100" step="1" id="costSensitiveFraction" value="{{ form.cost_sensitive_fraction.value|default:50 }}">
+                    <input type="number" class="form-control mt-2" min="0" max="100" step="1" id="costSensitiveFractionInput" value="{{ form.cost_sensitive_fraction.value|default:50 }}">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Productivity Inputs -->
+            <div class="accordion-item bg-dark border-secondary mb-3">
+              <h2 class="accordion-header">
+                <button class="accordion-button bg-dark text-light collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#productivityCollapse">
+                  👨‍💻 Productivity Inputs
+                </button>
+              </h2>
+              <div id="productivityCollapse" class="accordion-collapse collapse" data-bs-parent="#roiAccordion">
+                <div class="accordion-body">
+                  <div class="mb-4">
+                    <label class="form-label">👥 Number of Engineers: <span id="numEngineersLabel">{{ form.num_engineers.value|default:100 }}</span></label>
+                    <input type="range" class="form-range smooth-slider" min="1" max="1000" step="1" id="numEngineers" value="{{ form.num_engineers.value|default:100 }}">
+                    <input type="number" class="form-control mt-2" min="1" max="1000" step="1" id="numEngineersInput" value="{{ form.num_engineers.value|default:100 }}">
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label">💵 Engineer Cost Per Year: <span id="engineerCostPerYearLabel">${{ form.engineer_cost_per_year.value|default:150000|floatformat:0 }}</span></label>
+                    <input type="range" class="form-range smooth-slider" min="50000" max="500000" step="5000" id="engineerCostPerYear" value="{{ form.engineer_cost_per_year.value|default:150000 }}">
+                    <input type="number" class="form-control mt-2" min="50000" max="500000" step="5000" id="engineerCostPerYearInput" value="{{ form.engineer_cost_per_year.value|default:150000 }}">
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label">⚙️ Ops Time Fraction: <span id="opsTimeFractionLabel">{{ form.ops_time_fraction.value|default:15 }}%</span></label>
+                    <input type="range" class="form-range smooth-slider" min="0" max="100" step="1" id="opsTimeFraction" value="{{ form.ops_time_fraction.value|default:15 }}">
+                    <input type="number" class="form-control mt-2" min="0" max="100" step="1" id="opsTimeFractionInput" value="{{ form.ops_time_fraction.value|default:15 }}">
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label">🔄 Ops Toil Fraction: <span id="opsToilFractionLabel">{{ form.ops_toil_fraction.value|default:50 }}%</span></label>
+                    <input type="range" class="form-range smooth-slider" min="0" max="100" step="1" id="opsToilFraction" value="{{ form.ops_toil_fraction.value|default:50 }}">
+                    <input type="number" class="form-control mt-2" min="0" max="100" step="1" id="opsToilFractionInput" value="{{ form.ops_toil_fraction.value|default:50 }}">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Performance Inputs -->
+            <div class="accordion-item bg-dark border-secondary mb-3">
+              <h2 class="accordion-header">
+                <button class="accordion-button bg-dark text-light collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#performanceCollapse">
+                  🚀 Performance Inputs
+                </button>
+              </h2>
+              <div id="performanceCollapse" class="accordion-collapse collapse" data-bs-parent="#roiAccordion">
+                <div class="accordion-body">
+                  <div class="mb-4">
+                    <label class="form-label">⏱️ Average Response Time (seconds): <span id="avgResponseTimeSecLabel">{{ form.avg_response_time_sec.value|default:2 }}</span></label>
+                    <input type="range" class="form-range smooth-slider" min="0.1" max="10" step="0.1" id="avgResponseTimeSec" value="{{ form.avg_response_time_sec.value|default:2 }}">
+                    <input type="number" class="form-control mt-2" min="0.1" max="10" step="0.1" id="avgResponseTimeSecInput" value="{{ form.avg_response_time_sec.value|default:2 }}">
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label">📈 Revenue Lift per 100ms: <span id="revenueLiftPer100msLabel">{{ form.revenue_lift_per_100ms.value|default:1 }}%</span></label>
+                    <input type="range" class="form-range smooth-slider" min="0" max="10" step="0.1" id="revenueLiftPer100ms" value="{{ form.revenue_lift_per_100ms.value|default:1 }}">
+                    <input type="number" class="form-control mt-2" min="0" max="10" step="0.1" id="revenueLiftPer100msInput" value="{{ form.revenue_lift_per_100ms.value|default:1 }}">
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label">🔄 Toil Reduction Fraction: <span id="toilReductionFractionLabel">{{ form.toil_reduction_fraction.value|default:45 }}%</span></label>
+                    <input type="range" class="form-range smooth-slider" min="0" max="100" step="1" id="toilReductionFraction" value="{{ form.toil_reduction_fraction.value|default:45 }}">
+                    <input type="number" class="form-control mt-2" min="0" max="100" step="1" id="toilReductionFractionInput" value="{{ form.toil_reduction_fraction.value|default:45 }}">
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label">⚡ Execution Time Influence: <span id="execTimeInfluenceFractionLabel">{{ form.exec_time_influence_fraction.value|default:33 }}%</span></label>
+                    <input type="range" class="form-range smooth-slider" min="0" max="100" step="1" id="execTimeInfluenceFraction" value="{{ form.exec_time_influence_fraction.value|default:33 }}">
+                    <input type="number" class="form-control mt-2" min="0" max="100" step="1" id="execTimeInfluenceFractionInput" value="{{ form.exec_time_influence_fraction.value|default:33 }}">
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label">📦 Container Latency Reduction: <span id="latRedContainerLabel">{{ form.lat_red_container.value|default:28 }}%</span></label>
+                    <input type="range" class="form-range smooth-slider" min="0" max="100" step="0.1" id="latRedContainer" value="{{ form.lat_red_container.value|default:28 }}">
+                    <input type="number" class="form-control mt-2" min="0" max="100" step="0.1" id="latRedContainerInput" value="{{ form.lat_red_container.value|default:28 }}">
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label">☁️ Serverless Latency Reduction: <span id="latRedServerlessLabel">{{ form.lat_red_serverless.value|default:50 }}%</span></label>
+                    <input type="range" class="form-range smooth-slider" min="0" max="100" step="0.1" id="latRedServerless" value="{{ form.lat_red_serverless.value|default:50 }}">
+                    <input type="number" class="form-control mt-2" min="0" max="100" step="0.1" id="latRedServerlessInput" value="{{ form.lat_red_serverless.value|default:50 }}">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Availability Inputs -->
+            <div class="accordion-item bg-dark border-secondary mb-3">
+              <h2 class="accordion-header">
+                <button class="accordion-button bg-dark text-light collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#availabilityCollapse">
+                  🛡️ Availability Inputs
+                </button>
+              </h2>
+              <div id="availabilityCollapse" class="accordion-collapse collapse" data-bs-parent="#roiAccordion">
+                <div class="accordion-body">
+                  <div class="mb-4">
+                    <label class="form-label">❌ Current FCI Fraction: <span id="currentFCIFractionLabel">{{ form.current_fci_fraction.value|default:2 }}%</span></label>
+                    <input type="range" class="form-range smooth-slider" min="0" max="10" step="0.1" id="currentFCIFraction" value="{{ form.current_fci_fraction.value|default:2 }}">
+                    <input type="number" class="form-control mt-2" min="0" max="10" step="0.1" id="currentFCIFractionInput" value="{{ form.current_fci_fraction.value|default:2 }}">
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label">💰 Cost per 1% FCI: <span id="costPer1PctFCILabel">{{ form.cost_per_1pct_fci.value|default:1 }}%</span></label>
+                    <input type="range" class="form-range smooth-slider" min="0" max="10" step="0.1" id="costPer1PctFCI" value="{{ form.cost_per_1pct_fci.value|default:1 }}">
+                    <input type="number" class="form-control mt-2" min="0" max="10" step="0.1" id="costPer1PctFCIInput" value="{{ form.cost_per_1pct_fci.value|default:1 }}">
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label">📉 FCI Reduction Fraction: <span id="fciReductionFractionLabel">{{ form.fci_reduction_fraction.value|default:75 }}%</span></label>
+                    <input type="range" class="form-range smooth-slider" min="0" max="100" step="0.1" id="fciReductionFraction" value="{{ form.fci_reduction_fraction.value|default:75 }}">
+                    <input type="number" class="form-control mt-2" min="0" max="100" step="0.1" id="fciReductionFractionInput" value="{{ form.fci_reduction_fraction.value|default:75 }}">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel - Results -->
+    <div class="col-lg-6">
+      <div class="card bg-dark text-light shadow">
+        <div class="card-header fs-4 fw-semibold">
+          <span>📈 Detailed Results</span>
+        </div>
+        <div class="card-body">
+          <!-- Save Button -->
+          <button id="saveResultsBtn" class="btn btn-primary w-100 mb-4">💾 Save Results to Database</button>
+          
+          <!-- Payment Button (shown when user has no free calculations) -->
+          {% if not is_admin and not has_unlimited_access and remaining_calculations == 0 %}
+          <div class="alert alert-warning mb-4">
+            <h5 class="alert-heading">💳 Get Unlimited Access</h5>
+            <p class="mb-3">You have used all your free calculations. Pay just ₹1.00 to get <strong>unlimited access</strong> to the Full Calculator!</p>
+            <div class="d-grid">
+              <button id="payNowBtn" class="btn btn-warning">
+                <i class="fas fa-infinity me-2"></i>Get Unlimited Access - ₹1.00
+              </button>
+            </div>
+            <small class="text-muted mt-2 d-block">
+              <i class="fas fa-check-circle me-1"></i>One-time payment for lifetime unlimited access
+            </small>
+          </div>
+          {% endif %}
+
+          <!-- Main ROI Chart -->
+          <div class="card bg-gradient mb-4">
+            <div class="card-header fs-5 fw-bold text-primary text-center">
+              💎 Total Annual ROI: <span id="totalAnnualGain">$4.71M</span>
+            </div>
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-md-6 text-center">
+                  <canvas id="roiChart" style="max-width: 200px; max-height: 200px;"></canvas>
+                </div>
+                <div class="col-md-6">
+                  <div id="chartLegend" class="chart-legend">
+                    <!-- Legend will be populated by JavaScript -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ROI Breakdown Cards -->
+          <div class="row text-center mb-4">
+            <div class="col-6 mb-3">
+              <div class="card bg-gradient p-3">
+                <div class="fw-bold fs-5 text-info" id="cloudSavings">$1.41M</div>
+                <div class="text-secondary">☁️ Cloud</div>
+              </div>
+            </div>
+            <div class="col-6 mb-3">
+              <div class="card bg-gradient p-3">
+                <div class="fw-bold fs-5 text-success" id="productivityGain">$0.51M</div>
+                <div class="text-secondary">👥 Productivity</div>
+              </div>
+            </div>
+            <div class="col-6 mb-3">
+              <div class="card bg-gradient p-3">
+                <div class="fw-bold fs-5 text-warning" id="performanceGain">$1.59M</div>
+                <div class="text-secondary">⚡ Performance</div>
+              </div>
+            </div>
+            <div class="col-6 mb-3">
+              <div class="card bg-gradient p-3">
+                <div class="fw-bold fs-5 text-danger" id="availabilityGain">$1.20M</div>
+                <div class="text-secondary">🛡️ Availability</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Key Metrics -->
+          <div class="row text-center mb-4">
+            <div class="col-4">
+              <div class="card bg-gradient p-2">
+                <div class="fw-bold fs-5 text-info" id="roiPercent">1000%</div>
+                <div class="text-secondary">ROI</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="card bg-gradient p-2">
+                <div class="fw-bold fs-5 text-success" id="paybackMonths">1.2 mo</div>
+                <div class="text-secondary">Payback</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="card bg-gradient p-2">
+                <div class="fw-bold fs-5 text-warning">14 days</div>
+                <div class="text-secondary">Time to Value</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Enhanced Full ROI Calculator with TypeScript logic converted to JavaScript
+  class FullROICalculator {
+    constructor() {
+      this.initializeElements();
+      this.setupEventListeners();
+      this.initializeChart();
+      this.calculateResults();
+    }
+ 
+    initializeElements() {
+      this.sliders = {
+        annualRevenue: document.getElementById('annualRevenue'),
+        grossMargin: document.getElementById('grossMargin'),
+        containerAppFraction: document.getElementById('containerAppFraction'),
+        annualCloudSpend: document.getElementById('annualCloudSpend'),
+        computeSpendFraction: document.getElementById('computeSpendFraction'),
+        costSensitiveFraction: document.getElementById('costSensitiveFraction'),
+        numEngineers: document.getElementById('numEngineers'),
+        engineerCostPerYear: document.getElementById('engineerCostPerYear'),
+        opsTimeFraction: document.getElementById('opsTimeFraction'),
+        opsToilFraction: document.getElementById('opsToilFraction'),
+        avgResponseTimeSec: document.getElementById('avgResponseTimeSec'),
+        revenueLiftPer100ms: document.getElementById('revenueLiftPer100ms'),
+        currentFCIFraction: document.getElementById('currentFCIFraction'),
+        costPer1PctFCI: document.getElementById('costPer1PctFCI')
+      };
+     
+      this.inputs = {
+        annualRevenue: document.getElementById('annualRevenueInput'),
+        grossMargin: document.getElementById('grossMarginInput'),
+        containerAppFraction: document.getElementById('containerAppFractionInput'),
+        annualCloudSpend: document.getElementById('annualCloudSpendInput'),
+        computeSpendFraction: document.getElementById('computeSpendFractionInput'),
+        costSensitiveFraction: document.getElementById('costSensitiveFractionInput'),
+        numEngineers: document.getElementById('numEngineersInput'),
+        engineerCostPerYear: document.getElementById('engineerCostPerYearInput'),
+        opsTimeFraction: document.getElementById('opsTimeFractionInput'),
+        opsToilFraction: document.getElementById('opsToilFractionInput'),
+        avgResponseTimeSec: document.getElementById('avgResponseTimeSecInput'),
+        revenueLiftPer100ms: document.getElementById('revenueLiftPer100msInput'),
+        currentFCIFraction: document.getElementById('currentFCIFractionInput'),
+        costPer1PctFCI: document.getElementById('costPer1PctFCIInput')
+      };
+     
+      this.labels = {
+        annualRevenue: document.getElementById('annualRevenueLabel'),
+        grossMargin: document.getElementById('grossMarginLabel'),
+        containerAppFraction: document.getElementById('containerAppFractionLabel'),
+        annualCloudSpend: document.getElementById('annualCloudSpendLabel'),
+        computeSpendFraction: document.getElementById('computeSpendFractionLabel'),
+        costSensitiveFraction: document.getElementById('costSensitiveFractionLabel'),
+        numEngineers: document.getElementById('numEngineersLabel'),
+        engineerCostPerYear: document.getElementById('engineerCostPerYearLabel'),
+        opsTimeFraction: document.getElementById('opsTimeFractionLabel'),
+        opsToilFraction: document.getElementById('opsToilFractionLabel'),
+        avgResponseTimeSec: document.getElementById('avgResponseTimeSecLabel'),
+        revenueLiftPer100ms: document.getElementById('revenueLiftPer100msLabel'),
+        currentFCIFraction: document.getElementById('currentFCIFractionLabel'),
+        costPer1PctFCI: document.getElementById('costPer1PctFCILabel')
+      };
+     
+      this.results = {
+        totalAnnualGain: document.getElementById('totalAnnualGain'),
+        roiPercent: document.getElementById('roiPercent'),
+        paybackMonths: document.getElementById('paybackMonths'),
+        cloudSavings: document.getElementById('cloudSavings'),
+        productivityGain: document.getElementById('productivityGain'),
+        performanceGain: document.getElementById('performanceGain'),
+        availabilityGain: document.getElementById('availabilityGain')
+      };
+    }
+ 
+    setupEventListeners() {
+      // Sync sliders and number inputs
+      Object.keys(this.sliders).forEach(key => {
+        const slider = this.sliders[key];
+        const input = this.inputs[key];
+        const label = this.labels[key];
+       
+        slider.addEventListener('input', () => {
+          input.value = slider.value;
+          this.updateLabel(key, slider.value);
+          this.calculateResults();
+        });
+       
+        input.addEventListener('input', () => {
+          slider.value = input.value;
+          this.updateLabel(key, input.value);
+          this.calculateResults();
+        });
+      });
+ 
+      // Save results button
+      document.getElementById('saveResultsBtn').addEventListener('click', () => this.saveResults());
+    }
+ 
+    updateLabel(key, value) {
+      const numValue = Number(value);
+      if (key === 'annualRevenue' || key === 'annualCloudSpend' || key === 'engineerCostPerYear') {
+        this.labels[key].textContent = '$' + numValue.toLocaleString();
+      } else if (key === 'grossMargin' || key === 'containerAppFraction' || key === 'computeSpendFraction' ||
+                 key === 'costSensitiveFraction' || key === 'opsTimeFraction' || key === 'opsToilFraction' ||
+                 key === 'revenueLiftPer100ms' || key === 'currentFCIFraction' || key === 'costPer1PctFCI') {
+        this.labels[key].textContent = numValue + '%';
+      } else if (key === 'avgResponseTimeSec') {
+        this.labels[key].textContent = numValue;
+      } else {
+        this.labels[key].textContent = numValue.toLocaleString();
+      }
+    }
+ 
+       initializeChart() {
+      const ctx = document.getElementById('roiChart').getContext('2d');
+      this.chart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Cloud Savings', 'Productivity', 'Performance', 'Availability'],
+          datasets: [{
+            data: [1, 1, 1, 1],
+            backgroundColor: ['#36a2eb', '#ffcd56', '#4bc0c0', '#9966ff'],
+            borderWidth: 2,
+            borderColor: "#2c2c2c"
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: {
+              display: false // Disable built-in legend
+            }
+          }
+        }
+      });
+    }
+ 
+    calculateResults() {
+      const annualRevenue = Number(this.sliders.annualRevenue.value);
+      const grossMargin = Number(this.sliders.grossMargin.value);
+      const containerAppFraction = Number(this.sliders.containerAppFraction.value);
+      const annualCloudSpend = Number(this.sliders.annualCloudSpend.value);
+      const computeSpendFraction = Number(this.sliders.computeSpendFraction.value);
+      const costSensitiveFraction = Number(this.sliders.costSensitiveFraction.value);
+      const numEngineers = Number(this.sliders.numEngineers.value);
+      const engineerCostPerYear = Number(this.sliders.engineerCostPerYear.value);
+      const opsTimeFraction = Number(this.sliders.opsTimeFraction.value);
+      const opsToilFraction = Number(this.sliders.opsToilFraction.value);
+      const avgResponseTimeSec = Number(this.sliders.avgResponseTimeSec.value);
+      const revenueLiftPer100ms = Number(this.sliders.revenueLiftPer100ms.value);
+      const currentFCIFraction = Number(this.sliders.currentFCIFraction.value);
+      const costPer1PctFCI = Number(this.sliders.costPer1PctFCI.value);
+ 
+      // Constants from TypeScript version
+      const toilReductionFraction = 45;
+      const execTimeInfluenceFraction = 33;
+      const latRedContainer = 28;
+      const latRedServerless = 50;
+      const fciReductionFraction = 75;
+ 
+      // Calculate cloud savings
+      const computeSpend = annualCloudSpend * (computeSpendFraction / 100);
+      const costSensitiveSpend = computeSpend * (costSensitiveFraction / 100);
+      const cloudSavings = costSensitiveSpend * ((containerAppFraction / 100) * 0.5 + (1 - containerAppFraction / 100) * 0.2);
+ 
+      // Calculate productivity gain
+      const productivityGain = numEngineers * engineerCostPerYear * (opsTimeFraction / 100) * (opsToilFraction / 100) * (toilReductionFraction / 100);
+ 
+      // Calculate performance gain
+      const weightedLatRed = (containerAppFraction / 100) * (latRedContainer / 100) + (1 - containerAppFraction / 100) * (latRedServerless / 100);
+      const timeSavedSec = avgResponseTimeSec * weightedLatRed;
+      const revGainPct = (timeSavedSec / 0.1) * (revenueLiftPer100ms / 100);
+      const performanceGain = annualRevenue * revGainPct * (grossMargin / 100) * (execTimeInfluenceFraction / 100);
+ 
+      // Calculate availability gain
+      const fciCostFraction = (costPer1PctFCI / 100) * ((currentFCIFraction / 100) / 0.01);
+      const fciCost = annualRevenue * fciCostFraction * (grossMargin / 100);
+      const availabilityGain = fciCost * (fciReductionFraction / 100);
+ 
+      // Calculate total results
+      const totalAnnualGain = cloudSavings + productivityGain + performanceGain + availabilityGain;
+      const estimatedCost = totalAnnualGain / 10;
+      const roiPercent = (totalAnnualGain / (totalAnnualGain/10 + engineerCostPerYear)) * 100;
+      const paybackMonths = (12 * estimatedCost) / totalAnnualGain;
+ 
+      // Update UI
+      this.updateResults({
+        cloudSavings,
+        productivityGain,
+        performanceGain,
+        availabilityGain,
+        totalAnnualGain,
+        roiPercent,
+        paybackMonths
+      });
+ 
+      // Update chart
+      this.updateChart([cloudSavings, productivityGain, performanceGain, availabilityGain]);
+    }
+ 
+    updateResults(results) {
+      this.results.totalAnnualGain.textContent = this.formatCurrency(results.totalAnnualGain);
+      this.results.roiPercent.textContent = results.roiPercent.toFixed(0) + '%';
+      this.results.paybackMonths.textContent = results.paybackMonths.toFixed(1) + 'mo';
+      this.results.cloudSavings.textContent = this.formatCurrency(results.cloudSavings);
+      this.results.productivityGain.textContent = this.formatCurrency(results.productivityGain);
+      this.results.performanceGain.textContent = this.formatCurrency(results.performanceGain);
+      this.results.availabilityGain.textContent = this.formatCurrency(results.availabilityGain);
+    }
+ 
+    updateChart(data) {
+      this.chart.data.datasets[0].data = data;
+      this.chart.update();
+      
+      // Update custom legend
+      this.updateCustomLegend(data);
+    }
+
+    updateCustomLegend(data) {
+      const legendContainer = document.getElementById('chartLegend');
+      const labels = ['Cloud Savings', 'Productivity', 'Performance', 'Availability'];
+      const colors = ['#36a2eb', '#ffcd56', '#4bc0c0', '#9966ff'];
+      
+      let legendHTML = '<div class="custom-legend">';
+      
+      labels.forEach((label, index) => {
+        const value = data[index];
+        const formattedValue = this.formatCurrency(value);
+        
+        legendHTML += `
+          <div class="legend-item d-flex align-items-center mb-3">
+            <div class="legend-color me-3" style="width: 20px; height: 20px; background-color: ${colors[index]}; border-radius: 50%; border: 2px solid #2c2c2c;"></div>
+            <div class="legend-text">
+              <div class="fw-bold text-white">${label}</div>
+              <div class="text-secondary small">${formattedValue}</div>
+            </div>
+          </div>
+        `;
+      });
+      
+      legendHTML += '</div>';
+      legendContainer.innerHTML = legendHTML;
+    }
+ 
+    formatCurrency(value) {
+      if (value >= 1000000) {
+        return '$' + (value / 1000000).toFixed(2) + 'M';
+      } else if (value >= 1000) {
+        return '$' + (value / 1000).toFixed(2) + 'K';
+      } else {
+        return '$' + value.toFixed(2);
+      }
+    }
+ 
+    saveResults() {
+      const results = {
+        inputs: {
+          annualRevenue: Number(this.sliders.annualRevenue.value),
+          grossMargin: Number(this.sliders.grossMargin.value),
+          containerAppFraction: Number(this.sliders.containerAppFraction.value),
+          annualCloudSpend: Number(this.sliders.annualCloudSpend.value),
+          computeSpendFraction: Number(this.sliders.computeSpendFraction.value),
+          costSensitiveFraction: Number(this.sliders.costSensitiveFraction.value),
+          numEngineers: Number(this.sliders.numEngineers.value),
+          engineerCostPerYear: Number(this.sliders.engineerCostPerYear.value),
+          opsTimeFraction: Number(this.sliders.opsTimeFraction.value),
+          opsToilFraction: Number(this.sliders.opsToilFraction.value),
+          avgResponseTimeSec: Number(this.sliders.avgResponseTimeSec.value),
+          revenueLiftPer100ms: Number(this.sliders.revenueLiftPer100ms.value),
+          currentFCIFraction: Number(this.sliders.currentFCIFraction.value),
+          costPer1PctFCI: Number(this.sliders.costPer1PctFCI.value)
+        },
+        results: this.getCurrentResults()
+      };
+ 
+      // Save to Django backend
+      fetch('{% url "save_full_results" %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify(results)
+      })
+      .then(response => {
+        
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.success) {
+          alert('Results saved successfully!');
+        } else {
+          alert('Error saving results: ' + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error saving results. Please try again.');
+      });
+    }
+ 
+    getCurrentResults() {
+      const annualRevenue = Number(this.sliders.annualRevenue.value);
+      const grossMargin = Number(this.sliders.grossMargin.value);
+      const containerAppFraction = Number(this.sliders.containerAppFraction.value);
+      const annualCloudSpend = Number(this.sliders.annualCloudSpend.value);
+      const computeSpendFraction = Number(this.sliders.computeSpendFraction.value);
+      const costSensitiveFraction = Number(this.sliders.costSensitiveFraction.value);
+      const numEngineers = Number(this.sliders.numEngineers.value);
+      const engineerCostPerYear = Number(this.sliders.engineerCostPerYear.value);
+      const opsTimeFraction = Number(this.sliders.opsTimeFraction.value);
+      const opsToilFraction = Number(this.sliders.opsToilFraction.value);
+      const avgResponseTimeSec = Number(this.sliders.avgResponseTimeSec.value);
+      const revenueLiftPer100ms = Number(this.sliders.revenueLiftPer100ms.value);
+      const currentFCIFraction = Number(this.sliders.currentFCIFraction.value);
+      const costPer1PctFCI = Number(this.sliders.costPer1PctFCI.value);
+ 
+      // Constants
+      const toilReductionFraction = 45;
+      const execTimeInfluenceFraction = 33;
+      const latRedContainer = 28;
+      const latRedServerless = 50;
+      const fciReductionFraction = 75;
+ 
+      // Recalculate to get current results
+      const computeSpend = annualCloudSpend * (computeSpendFraction / 100);
+      const costSensitiveSpend = computeSpend * (costSensitiveFraction / 100);
+      const cloudSavings = costSensitiveSpend * ((containerAppFraction / 100) * 0.5 + (1 - containerAppFraction / 100) * 0.2);
+ 
+      const productivityGain = numEngineers * engineerCostPerYear * (opsTimeFraction / 100) * (opsToilFraction / 100) * (toilReductionFraction / 100);
+ 
+      const weightedLatRed = (containerAppFraction / 100) * (latRedContainer / 100) + (1 - containerAppFraction / 100) * (latRedServerless / 100);
+      const timeSavedSec = avgResponseTimeSec * weightedLatRed;
+      const revGainPct = (timeSavedSec / 0.1) * (revenueLiftPer100ms / 100);
+      const performanceGain = annualRevenue * revGainPct * (grossMargin / 100) * (execTimeInfluenceFraction / 100);
+ 
+      const fciCostFraction = (costPer1PctFCI / 100) * ((currentFCIFraction / 100) / 0.01);
+      const fciCost = annualRevenue * fciCostFraction * (grossMargin / 100);
+      const availabilityGain = fciCost * (fciReductionFraction / 100);
+ 
+      const totalAnnualGain = cloudSavings + productivityGain + performanceGain + availabilityGain;
+      const estimatedCost = totalAnnualGain / 10;
+      const roiPercent = (totalAnnualGain / estimatedCost) * 100;
+      const paybackMonths = (12 * estimatedCost) / totalAnnualGain;
+ 
+      return {
+        cloudSavings,
+        productivityGain,
+        performanceGain,
+        availabilityGain,
+        totalAnnualGain,
+        roiPercent,
+        paybackMonths
+      };
+    }
+  }
+ 
+  // Initialize calculator when DOM is loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    new FullROICalculator();
+  });
+</script>
+ 
+<style>
+  .text-gradient {
+    background: linear-gradient(90deg, #36a2eb, #9966ff) !important;
+    background-clip: text !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+  }
+  
+  .bg-gradient {
+    background: linear-gradient(135deg, #232526 0%, #414345 100%) !important;
+  }
+  
+  .smooth-slider {
+    transition: all 0.3s ease !important;
+  }
+  
+  .smooth-slider:hover {
+    transform: scaleY(1.2) !important;
+  }
+  
+  .smooth-slider::-webkit-slider-thumb {
+    transition: all 0.3s ease !important;
+  }
+  
+  .smooth-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2) !important;
+    box-shadow: 0 0 20px rgba(54, 162, 235, 0.5) !important;
+  }
+
+  /* Enhanced slider styling to match quick calculator */
+  .form-range {
+    background-color: rgb(51 65 85) !important;
+    height: 8px !important;
+    border-radius: 4px !important;
+  }
+
+  .form-range::-webkit-slider-thumb {
+    background: linear-gradient(135deg, #36a2eb, #9966ff) !important;
+    border: 2px solid #ffffff !important;
+    border-radius: 50% !important;
+    width: 20px !important;
+    height: 20px !important;
+    cursor: pointer !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .form-range::-moz-range-thumb {
+    background: linear-gradient(135deg, #36a2eb, #9966ff) !important;
+    border: 2px solid #ffffff !important;
+    border-radius: 50% !important;
+    width: 20px !important;
+    height: 20px !important;
+    cursor: pointer !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .form-range::-webkit-slider-track {
+    background: linear-gradient(90deg, #36a2eb, #9966ff) !important;
+    border-radius: 4px !important;
+    height: 8px !important;
+  }
+
+  .form-range::-moz-range-track {
+    background: linear-gradient(90deg, #36a2eb, #9966ff) !important;
+    border-radius: 4px !important;
+    height: 8px !important;
+  }
+
+  /* Custom form styling */
+  .form-label {
+    display: block !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    color: rgb(203 213 225) !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .form-control {
+    width: 100% !important;
+    padding: 0.5rem 0.75rem !important;
+    background-color: rgb(30 41 59) !important;
+    border: 1px solid rgb(71 85 105) !important;
+    border-radius: 0.375rem !important;
+    color: #fff !important;
+    outline: none !important;
+    transition: all 0.2s !important;
+  }
+
+  .form-control:focus, .form-control:active {
+    border-color: rgb(59 130 246) !important;
+    box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1) !important;
+    color: #fff !important;
+    background-color: rgb(30 41 59) !important;
+  }
+
+  /* Bootstrap accordion customization */
+  .accordion-item {
+    background-color: transparent !important;
+    border: 1px solid #6c757d !important;
+  }
+
+  .accordion-button {
+    background-color: transparent !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .accordion-button:not(.collapsed) {
+    background-color: rgba(54, 162, 235, 0.1) !important;
+    color: #36a2eb !important;
+  }
+
+  .accordion-button:focus {
+    box-shadow: none !important;
+    border-color: #36a2eb !important;
+  }
+
+  .accordion-button::after {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e") !important;
+  }
+
+  .accordion-button:not(.collapsed)::after {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2336a2eb'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e") !important;
+  }
+
+  .accordion-body {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+    color: #ffffff !important;
+  }
+
+  /* Card styling */
+  .card {
+    border: none !important;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  }
+
+  .card-header {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    border-bottom: 1px solid #6c757d !important;
+  }
+
+  /* Button styling */
+  .btn-primary {
+    background: linear-gradient(135deg, #36a2eb, #9966ff) !important;
+    border: none !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #2d8bd9, #7c5ae6) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  /* Text colors */
+  .text-primary {
+    color: #36a2eb !important;
+  }
+
+  .text-info {
+    color: #17a2b8 !important;
+  }
+
+  .text-success {
+    color: #28a745 !important;
+  }
+
+  .text-warning {
+    color: #ffc107 !important;
+  }
+
+  .text-danger {
+    color: #dc3545 !important;
+  }
+
+  .text-secondary {
+    color: #6c757d !important;
+  }
+
+  /* Custom Legend Styling */
+  .chart-legend {
+    padding: 20px 0;
+  }
+
+  .custom-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .legend-item {
+    transition: all 0.3s ease;
+  }
+
+  .legend-item:hover {
+    transform: translateX(5px);
+  }
+
+  .legend-color {
+    flex-shrink: 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .legend-text {
+    flex-grow: 1;
+  }
+</style>
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border-0">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-white">
+                    <i class="fas fa-credit-card me-2"></i>Complete Payment
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="paymentForm">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white">Amount: ₹1.00</h4>
+                        <p class="text-white-50">For <strong>unlimited access</strong> to the Full Calculator</p>
+                        <div class="alert alert-success mt-3">
+                            <i class="fas fa-infinity me-2"></i>
+                            <strong>One-time payment for lifetime unlimited access!</strong>
+                        </div>
+                    </div>
+                    
+                                <div id="razorpayContainer">
+                <!-- Razorpay payment button will be loaded here -->
+                <form id="razorpayForm">
+                    <script src="https://checkout.razorpay.com/v1/payment-button.js" 
+                            data-payment_button_id="pl_RDhRAQjOTNv1Jm" 
+                            async>
+                    </script>
+                </form>
+                
+                <!-- Manual payment verification section -->
+                <div class="mt-4 p-3 bg-light rounded">
+                    <h6 class="text-dark mb-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        After completing payment in Razorpay:
+                    </h6>
+                    <div class="d-grid">
+                        <button id="verifyPaymentBtn" class="btn btn-success" style="display: none;">
+                            <i class="fas fa-check-circle me-2"></i>
+                            I have completed the payment - Verify Now
+                        </button>
+                    </div>
+                    <small class="text-muted mt-2 d-block">
+                        <i class="fas fa-lightbulb me-1"></i>
+                        Click this button after you see "Payment Successful" in Razorpay
+                    </small>
+                </div>
+                
+                <!-- Alternative: Direct payment simulation for testing -->
+                <div class="mt-3 p-3 bg-warning rounded">
+                    <h6 class="text-dark mb-3">
+                        <i class="fas fa-tools me-2"></i>
+                        For Testing (Development Mode):
+                    </h6>
+                    <div class="d-grid">
+                        <button id="simulatePaymentBtn" class="btn btn-warning" style="display: none;">
+                            <i class="fas fa-flask me-2"></i>
+                            Simulate Successful Payment (Test Mode)
+                        </button>
+                    </div>
+                    <small class="text-muted mt-2 d-block">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Use this button to simulate a successful payment for testing purposes
+                    </small>
+                </div>
+            </div>
+                    
+                    <div id="paymentStatus" class="text-center mt-3" style="display: none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Processing...</span>
+                        </div>
+                        <p class="text-white-50 mt-2">Processing payment...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+// Payment functionality for full calculator
+document.addEventListener('DOMContentLoaded', function() {
+    const payNowBtn = document.getElementById('payNowBtn');
+    if (payNowBtn) {
+        const paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+        
+        payNowBtn.addEventListener('click', function() {
+            createPayment();
+        });
+        
+        function createPayment() {
+            fetch('/dashboard/payment/create/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    paymentModal.show();
+                    // Update payment button with dynamic data
+                    updateRazorpayButton(data);
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while creating payment.');
+            });
+        }
+        
+        function updateRazorpayButton(data) {
+            // Update the payment button with dynamic data
+            const razorpayForm = document.getElementById('razorpayForm');
+            if (razorpayForm) {
+                // Clear existing content
+                razorpayForm.innerHTML = '';
+                
+                // Create new script with dynamic payment button
+                const script = document.createElement('script');
+                script.src = 'https://checkout.razorpay.com/v1/payment-button.js';
+                script.setAttribute('data-payment_button_id', data.payment_button_id);
+                script.async = true;
+                
+                // Add custom attributes for user data
+                script.setAttribute('data-name', data.user_name);
+                script.setAttribute('data-email', data.user_email);
+                script.setAttribute('data-amount', data.amount * 100); // Convert to paise
+                script.setAttribute('data-currency', data.currency);
+                script.setAttribute('data-description', 'Full Calculator Access - ROI Calculator');
+                // Add success URL for proper redirect after payment
+                if (data.success_url) {
+                    script.setAttribute('data-callback_url', data.success_url);
+                }
+                script.setAttribute('data-prefill.name', data.user_name);
+                script.setAttribute('data-prefill.email', data.user_email);
+                
+                razorpayForm.appendChild(script);
+                
+                // Listen for payment success
+                window.addEventListener('message', function(event) {
+                    if (event.data && event.data.type === 'razorpay_payment_success') {
+                        handlePaymentSuccess(data.payment_id, event.data);
+                    }
+                });
+                
+                // Add a global function to handle Razorpay payment success
+                window.razorpayPaymentSuccess = function(razorpayData) {
+                    handlePaymentSuccess(data.payment_id, razorpayData);
+                };
+                
+                // Show the manual verification button after payment button is loaded
+                setTimeout(function() {
+                    const verifyBtn = document.getElementById('verifyPaymentBtn');
+                    const simulateBtn = document.getElementById('simulatePaymentBtn');
+                    if (verifyBtn) {
+                        verifyBtn.style.display = 'block';
+                        verifyBtn.setAttribute('data-payment-id', data.payment_id);
+                    }
+                    if (simulateBtn) {
+                        simulateBtn.style.display = 'block';
+                        simulateBtn.setAttribute('data-payment-id', data.payment_id);
+                    }
+                }, 2000);
+            }
+        }
+        
+        // Move handlePaymentSuccess to global scope so it can be accessed by event listeners
+        window.handlePaymentSuccess = function(paymentId, razorpayData) {
+            // Handle successful payment
+            document.getElementById('paymentStatus').style.display = 'block';
+            
+            // Verify payment with backend
+            verifyPayment(paymentId, razorpayData);
+        };
+        
+        // Move verifyPayment to global scope so it can be accessed by event listeners
+        window.verifyPayment = function(paymentId, razorpayResponse) {
+            document.getElementById('paymentStatus').style.display = 'block';
+            
+            fetch('/dashboard/payment/verify/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({
+                    payment_id: paymentId,
+                    razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+                    razorpay_signature: razorpayResponse.razorpay_signature
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Hide payment modal if it exists
+                    const paymentModal = document.getElementById('paymentModal');
+                    if (paymentModal) {
+                        const modal = bootstrap.Modal.getInstance(paymentModal);
+                        if (modal) {
+                            modal.hide();
+                        }
+                    }
+                    
+                    // Directly redirect to full calculator after successful payment
+                    if (data.unlimited_access) {
+                        // Reload the page to show unlimited access status
+                        window.location.href = '/dashboard/full/?payment_success=true&unlimited_access=true';
+                    } else {
+                        // Reload the page
+                        window.location.href = '/dashboard/full/?payment_success=true';
+                    }
+                } else {
+                    alert('Payment verification failed: ' + data.error);
+                    window.location.href = '/dashboard/payment/failure/';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Payment verification failed.');
+                window.location.href = '/dashboard/payment/failure/';
+            });
+        };
+    }
+});
+
+// Manual payment verification button handler
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Setting up payment verification buttons...');
+    
+    // Function to setup button event listeners
+    function setupButtonListeners() {
+        const verifyBtn = document.getElementById('verifyPaymentBtn');
+        const simulateBtn = document.getElementById('simulatePaymentBtn');
+        
+        console.log('Verify button found:', !!verifyBtn);
+        console.log('Simulate button found:', !!simulateBtn);
+        
+        if (verifyBtn) {
+            // Remove any existing event listeners
+            verifyBtn.removeEventListener('click', handleVerifyClick);
+            verifyBtn.addEventListener('click', handleVerifyClick);
+            console.log('Verify button event listener added');
+        }
+        
+        if (simulateBtn) {
+            // Remove any existing event listeners
+            simulateBtn.removeEventListener('click', handleSimulateClick);
+            simulateBtn.addEventListener('click', handleSimulateClick);
+            console.log('Simulate button event listener added');
+        }
+    }
+    
+    // Handle verify button click
+    function handleVerifyClick(event) {
+        console.log('Verify button clicked');
+        event.preventDefault();
+        
+        const paymentId = this.getAttribute('data-payment-id');
+        console.log('Payment ID:', paymentId);
+        
+        if (paymentId) {
+            // Show loading state
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Verifying...';
+            
+            // Simulate successful payment verification
+            const mockRazorpayData = {
+                razorpay_payment_id: 'manual_verification_' + Date.now(),
+                razorpay_signature: 'manual_signature_' + Date.now()
+            };
+            
+            if (window.handlePaymentSuccess) {
+                window.handlePaymentSuccess(paymentId, mockRazorpayData);
+            } else {
+                alert('Payment verification function not available. Please refresh the page.');
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-check-circle me-2"></i>I have completed the payment - Verify Now';
+            }
+        } else {
+            alert('Payment ID not found. Please try again.');
+        }
+    }
+    
+    // Handle simulate button click
+    function handleSimulateClick(event) {
+        console.log('Simulate button clicked');
+        event.preventDefault();
+        
+        const paymentId = this.getAttribute('data-payment-id');
+        console.log('Payment ID:', paymentId);
+        
+        if (paymentId) {
+            // Show loading state
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Simulating...';
+            
+            // Simulate successful payment verification
+            const mockRazorpayData = {
+                razorpay_payment_id: 'simulated_payment_' + Date.now(),
+                razorpay_signature: 'simulated_signature_' + Date.now()
+            };
+            
+            if (window.handlePaymentSuccess) {
+                window.handlePaymentSuccess(paymentId, mockRazorpayData);
+            } else {
+                alert('Payment verification function not available. Please refresh the page.');
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-flask me-2"></i>Simulate Successful Payment (Test Mode)';
+            }
+        } else {
+            alert('Payment ID not found. Please try again.');
+        }
+    }
+    
+    // Setup initial listeners
+    setupButtonListeners();
+    
+    // Also setup listeners when buttons are dynamically added
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList') {
+                setupButtonListeners();
+            }
+        });
+    });
+    
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+});
+</script>
+{% endblock %}
+ 
