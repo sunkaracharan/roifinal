@@ -980,7 +980,7 @@ CALCULATION FORMULAS:
 
    totalAnnualGain = cloudSavings + productivityGain + performanceGain + availabilityGain
    estimatedCost = Math.max(annualCloudSpend * 0.1, numEngineers * engineerCostPerYear * 0.05, annualRevenue * 0.005)
-   roiPercent = (totalAnnualGain / (totalAnnualGain/10 + engineerCostPerYear)) * 100;
+   roiPercent = (totalAnnualGain / (totalAnnualGain/10 + engineerCostPerYear))*100;
    paybackMonths = (12 * estimatedCost) / totalAnnualGain
 
 The calculator estimates the ROI by calculating potential savings and gains across four key areas: cloud infrastructure optimization, engineering productivity improvements, application performance enhancements, and system availability improvements."""
